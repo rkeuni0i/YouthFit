@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>유스핏 AI - 맞춤 진단 결과 대시보드</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="assets/logo/svg/youthfit-icon.svg">
   
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,12 +80,10 @@
   <!-- Left Fixed Sidebar (Desktop) -->
   <aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col pt-5 pb-6 border-r border-hairline-border">
     <!-- Brand Logo -->
-    <div class="px-6 mb-8 flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm">
-        <span class="material-symbols-outlined text-[18px]">verified</span>
-      </div>
-      <a class="font-display text-lg font-bold text-on-surface tracking-tight" href="index.html">
-        유스핏 <span class="text-primary">AI</span>
+    <div class="px-6 mb-8 flex items-center">
+      <a class="inline-block group" href="index.html" title="YouthFit AI 홈으로 이동">
+        <img src="assets/logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-8 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
+        <img src="assets/logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-8 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
       </a>
     </div>
 
@@ -97,9 +97,9 @@
         <span class="material-symbols-outlined text-[20px]">verified</span>
         <span>맞춤 수혜 혜택</span>
       </a>
-      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="../data/policies_explorer.html" target="_blank">
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="explorer.html">
         <span class="material-symbols-outlined text-[20px]">pending_actions</span>
-        <span>전체 정책 탐색기</span>
+        <span>전체 정책 탐색기 (706건)</span>
       </a>
       <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="diagnosis.html">
         <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
@@ -163,7 +163,7 @@
 
             <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div class="space-y-2">
-                <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">2025 맞춤형 청년 복지 계산 결과</span>
+                <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">2026 맞춤형 청년 복지 계산 결과</span>
                 <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <h1 class="font-display text-4xl sm:text-5xl font-extrabold text-on-surface tracking-tight">
                     약 <span class="text-primary font-extrabold" id="hero-benefit-amount">3,200,000</span><span class="text-2xl text-on-surface">원</span>
@@ -248,7 +248,7 @@
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                 <div class="flex items-center gap-2 text-on-surface-variant text-xs">
                   <span class="material-symbols-outlined text-[16px]">calendar_today</span>
-                  <span>신청기간: 2025.03.11 ~ 2025.03.18 18:00</span>
+                  <span>신청기간: 2026.03.11 ~ 2026.03.18 18:00</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <button class="px-3.5 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm border border-hairline-border" onclick="alert('서울시 청년수당: 매월 50만원씩 최대 6개월간 클린카드로 지원하며, 직무 멘토링 프로그램이 의무 이수됩니다.');" type="button">
@@ -305,7 +305,7 @@
                   <span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface text-xs font-bold">적격 3순위</span>
                   <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-xs">자산형성 / 서울시복지재단</span>
                 </div>
-                <span class="text-xs text-primary font-semibold">2025 상반기 공고 예정</span>
+                <span class="text-xs text-primary font-semibold">2026 상반기 공고 예정</span>
               </div>
 
               <div class="space-y-1">
@@ -321,7 +321,7 @@
               </p>
 
               <div class="flex items-center justify-end gap-2 pt-1">
-                <button class="px-4 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm border border-hairline-border" onclick="alert('희망두배 청년통장 2025년 상반기 공고 알림 예약이 완료되었습니다.');" type="button">
+                <button class="px-4 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm border border-hairline-border" onclick="alert('희망두배 청년통장 2026년 상반기 공고 알림 예약이 완료되었습니다.');" type="button">
                   <span class="material-symbols-outlined text-[16px]">notifications_active</span>
                   <span>모집 오픈 사전 알림 예약</span>
                 </button>
@@ -429,10 +429,6 @@
                   <span class="material-symbols-outlined text-[20px]">chat</span>
                   <span>서류 목록 및 발급 링크 카카오톡 전송</span>
                 </button>
-                <button class="w-full h-11 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer border border-hairline-border" onclick="handlePdfDownload()" type="button">
-                  <span class="material-symbols-outlined text-[18px]">download</span>
-                  <span>진단 종합 보고서 PDF 다운로드</span>
-                </button>
               </div>
             </div>
 
@@ -507,7 +503,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div class="p-3.5 rounded-xl bg-surface-container-lowest border border-hairline-border space-y-1">
             <span class="text-outline font-semibold">신청 기간</span>
-            <p class="font-bold text-on-surface" id="modal-period">2025 상반기 공고</p>
+            <p class="font-bold text-on-surface" id="modal-period">2026 상반기 공고</p>
           </div>
           <div class="p-3.5 rounded-xl bg-surface-container-lowest border border-hairline-border space-y-1">
             <span class="text-outline font-semibold">소관 부처 / 운영기관</span>

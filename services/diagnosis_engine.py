@@ -194,6 +194,66 @@ KOREA_REGIONS = [
     {"code": "jeju", "short": "제주", "full": "제주특별자치도"}
 ]
 
+# 17개 시도별 지자체 매칭 및 타 지자체 배제 패턴
+PROVINCE_PATTERNS = {
+    "서울": {"tokens": ["서울", "서울특별시", "서울시"], "domains": ["seoul.go.kr"]},
+    "경기": {"tokens": ["경기", "경기도", "수원", "용인", "고양", "성남", "화성", "부천", "남양주", "안산", "평택", "안양", "시흥", "파주", "김포", "의정부", "하남", "광명", "군포", "양주", "오산", "이천", "안성", "구리", "의왕", "포천"], "domains": ["gg.go.kr", "jobaba.net"]},
+    "인천": {"tokens": ["인천", "인천광역시", "인천시", "제물포", "미추홀", "연수구", "남동구", "부평구", "계양구", "강화군", "옹진군"], "domains": ["incheon.go.kr"]},
+    "부산": {"tokens": ["부산", "부산광역시", "부산시", "해운대", "사하구", "금정구", "연제구", "수영구", "사상구", "기장군"], "domains": ["busan.go.kr"]},
+    "대구": {"tokens": ["대구", "대구광역시", "대구시", "달서구", "달성군", "수성구"], "domains": ["daegu.go.kr"]},
+    "대전": {"tokens": ["대전", "대전광역시", "대전시", "유성구", "대덕구"], "domains": ["daejeon.go.kr"]},
+    "광주": {"tokens": ["광주", "광주광역시", "광주시", "전남광주", "광주전남", "광산구"], "domains": ["gwangju.go.kr"]},
+    "울산": {"tokens": ["울산", "울산광역시", "울산시", "울주군"], "domains": ["ulsan.go.kr"]},
+    "세종": {"tokens": ["세종", "세종특별자치시", "세종시"], "domains": ["sejong.go.kr"]},
+    "강원": {"tokens": ["강원", "강원도", "강원특별자치도", "춘천", "원주", "강릉"], "domains": ["gwd.go.kr", "gangwon.go.kr"]},
+    "충북": {"tokens": ["충북", "충청북도", "청주", "충주", "제천"], "domains": ["chungbuk.go.kr"]},
+    "충남": {"tokens": ["충남", "충청남도", "천안", "아산", "서산", "당진", "공주", "보령", "논산"], "domains": ["chungnam.go.kr"]},
+    "전북": {"tokens": ["전북", "전라북도", "전북특별자치도", "전주", "군산", "익산", "정읍", "남원", "김제", "완주"], "domains": ["jeonbuk.go.kr"]},
+    "전남": {"tokens": ["전남", "전라남도", "전남광주", "광주전남", "화순", "나주", "영암", "광양", "목포", "여수", "순천", "해남", "담양", "완도", "진도", "신안"], "domains": ["jeonnam.go.kr"]},
+    "경북": {"tokens": ["경북", "경상북도", "포항", "구미", "경주", "안동", "김천", "경산", "칠곡"], "domains": ["gb.go.kr"]},
+    "경남": {"tokens": ["경남", "경상남도", "창원", "김해", "진주", "양산", "거제", "통영", "사천"], "domains": ["gyeongnam.go.kr"]},
+    "제주": {"tokens": ["제주", "제주도", "제주특별자치도", "서귀포"], "domains": ["jeju.go.kr"]}
+}
+
+def is_policy_for_other_province(policy: dict, user_prov: str) -> bool:
+    """
+    사용자의 시도(예: '서울')와 다른 타 지자체의 전용 정책인지 엄격하게 판별합니다.
+    True를 반환하면 타 지자체 전용 정책이므로 진단 결과에서 제외됩니다.
+    """
+    if user_prov == "전국":
+        return False
+
+    name = policy.get("name", "") or ""
+    sup = policy.get("supervising_inst", "") or ""
+    op = policy.get("operating_inst", "") or ""
+    url = policy.get("apply_url", "") or ""
+
+    user_tokens = PROVINCE_PATTERNS.get(user_prov, {}).get("tokens", [user_prov])
+
+    # 사용자의 시도명/지자체명이 주관/운영기관/제목에 포함된 경우 허용
+    if any(t in sup or t in op or t in name for t in user_tokens):
+        return False
+
+    # 타 16개 시도의 전용 정책 여부 체크
+    for prov, meta in PROVINCE_PATTERNS.items():
+        if prov == user_prov:
+            continue
+        # 1. 소관기관 또는 운영기관에 타 지자체명/지역구가 포함된 경우
+        for t in meta["tokens"]:
+            if (t in sup) or (t in op):
+                return True
+        # 2. 신청 URL 도메인이 타 지자체 도메인인 경우
+        for d in meta["domains"]:
+            if d in url:
+                return True
+        # 3. 정책명에 타 지자체 접두어/명칭이 포함된 경우
+        for t in meta["tokens"]:
+            patterns = [f"[{t}", f"({t}", f"{t} ", f"{t}시", f"{t}도", f"{t}광역", f"{t}특별", f"{t}청년", f"{t}형"]
+            if any(p in name for p in patterns):
+                return True
+
+    return False
+
 def resolve_user_region(profile):
     """
     사용자가 입력한 region 또는 district 텍스트로부터 (시도_short, 시도_full, 시군구)를 추론합니다.
@@ -300,20 +360,8 @@ def diagnose_policies(profile):
         # 2. 거주 지역 (Region / District) 전국구 지능형 매칭 & 타 시도 필터링
         # -------------------------------------------------------------
         if reg_short != "전국":
-            other_regions = [r["short"] for r in KOREA_REGIONS if r["short"] != reg_short]
-            is_other_province = False
-            for o_reg in other_regions:
-                # 1) 정책명(name)에 타 시도 키워드가 포함된 경우
-                if (f"{o_reg}청년" in name) or (f"{o_reg} " in name) or (f"[{o_reg}" in name) or (f"({o_reg}" in name) or (f"{o_reg}시" in name) or (f"{o_reg}도" in name) or (f"{o_reg}광역시" in name):
-                    is_other_province = True
-                    break
-                # 2) 소관기관(supervising)이나 운영기관에 타 시도명이 들어간 경우
-                if (f"{o_reg}시" in supervising) or (f"{o_reg}도" in supervising) or (f"{o_reg}광역시" in supervising) or (f"{o_reg}특별" in supervising):
-                    is_other_province = True
-                    break
-
-            if is_other_province:
-                # 타 시도 전용 정책 제외
+            if is_policy_for_other_province(p, reg_short):
+                # 타 시도 전용 정책 배제
                 continue
 
             # 해당 시도 관련 정책 가산점

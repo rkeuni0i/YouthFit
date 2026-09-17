@@ -331,14 +331,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Kakao Share Handler
   window.handleKakaoShare = function() {
-    let profileDesc = "2025 유스핏 AI 맞춤 청년 정책 진단 결과\n";
+    let profileDesc = "2026 유스핏 AI 맞춤 청년 정책 진단 결과\n";
     if (heroProfileText) profileDesc += `• 대상: ${heroProfileText.textContent}\n`;
     if (heroBenefitAmount) profileDesc += `• 예상 수혜금액: 연 ${heroBenefitAmount.textContent}원 상당\n`;
     profileDesc += "\n[추천 혜택 Top 4]\n";
     currentPolicies.slice(0, 4).forEach((p, idx) => {
       profileDesc += `${idx+1}. ${p.name} (${p.amount_desc})\n`;
     });
-    profileDesc += "\n서류 발급 링크: https://www.gov.kr\n진단 사이트: http://localhost:8000";
+    profileDesc += "\n서류 발급 링크: https://www.gov.kr\n진단 사이트: http://127.0.0.1:8000";
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(profileDesc)
@@ -351,10 +351,5 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       alert(profileDesc);
     }
-  };
-
-  // PDF Download Handler
-  window.handlePdfDownload = function() {
-    window.print();
   };
 });

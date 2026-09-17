@@ -64,17 +64,52 @@ function toggleAllAgreements(masterCheck) {
   });
 }
 
-// 1. Google OAuth Social Login Handler
-async function handleGoogleLogin() {
-  // 실제 Google OAuth 환경 또는 로컬 개발 환경용 Google 간편 로그인
-  let email = prompt("Google 계정 이메일을 입력하세요 (데모 기본값 사용 가능):", "youth_user@gmail.com");
-  if (!email) return;
+// 1. Google OAuth Social Login Modal & Handlers
+function openGoogleModal() {
+  const modal = document.getElementById('google-auth-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
 
-  let name = prompt("Google 프로필 닉네임을 입력하세요:", "청년 구글러");
-  if (!name) name = "구글 사용자";
+function closeGoogleModal() {
+  const modal = document.getElementById('google-auth-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
 
-  const btn = document.getElementById('btn-google-login');
-  if (btn) btn.disabled = true;
+function handleGoogleLogin() {
+  openGoogleModal();
+}
+
+function selectGoogleAccount(email, name) {
+  const emailInput = document.getElementById('google-modal-email');
+  const nameInput = document.getElementById('google-modal-name');
+  if (emailInput) emailInput.value = email;
+  if (nameInput) nameInput.value = name;
+  executeGoogleLogin(email, name);
+}
+
+async function submitGoogleModal(event) {
+  if (event) event.preventDefault();
+  const email = document.getElementById('google-modal-email')?.value?.trim();
+  const name = document.getElementById('google-modal-name')?.value?.trim() || "구글 사용자";
+  if (!email) {
+    alert("Google 이메일을 입력해 주세요.");
+    return;
+  }
+  await executeGoogleLogin(email, name);
+}
+
+async function executeGoogleLogin(email, name) {
+  const btn = document.getElementById('btn-google-modal-submit');
+  const googleBtn = document.getElementById('btn-google-login');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>로그인 중...</span>`;
+  }
+  if (googleBtn) googleBtn.disabled = true;
 
   try {
     const res = await fetch('/api/auth/google', {
@@ -93,7 +128,7 @@ async function handleGoogleLogin() {
     }
 
     const userData = json.data;
-    // Requirement 1: Purge any old guest data from storage so it does not bleed into the logged in user
+    // Purge any old guest data from storage so it does not bleed into the logged in user
     localStorage.removeItem('youthfit_profile');
     sessionStorage.clear();
 
@@ -105,6 +140,7 @@ async function handleGoogleLogin() {
       localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
     }
 
+    closeGoogleModal();
     showToast(`🎉 ${userData.name}님 환영합니다! Google 계정으로 로그인되었습니다.`, 'success');
 
     setTimeout(() => {
@@ -113,7 +149,11 @@ async function handleGoogleLogin() {
   } catch (err) {
     alert("Google 로그인 오류: " + err.message);
   } finally {
-    if (btn) btn.disabled = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<span>로그인 진행</span><span class="material-symbols-outlined text-base">login</span>`;
+    }
+    if (googleBtn) googleBtn.disabled = false;
   }
 }
 
@@ -273,6 +313,10 @@ window.switchAuthTab = switchAuthTab;
 window.togglePasswordVisibility = togglePasswordVisibility;
 window.toggleAllAgreements = toggleAllAgreements;
 window.handleGoogleLogin = handleGoogleLogin;
+window.openGoogleModal = openGoogleModal;
+window.closeGoogleModal = closeGoogleModal;
+window.selectGoogleAccount = selectGoogleAccount;
+window.submitGoogleModal = submitGoogleModal;
 window.handleLoginSubmit = handleLoginSubmit;
 window.handleSignupSubmit = handleSignupSubmit;
 window.guestQuickStart = guestQuickStart;

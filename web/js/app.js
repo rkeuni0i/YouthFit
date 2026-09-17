@@ -312,7 +312,7 @@ function renderPersonalizedHero() {
         <div class="mt-3 rounded-2xl bg-gradient-to-br from-primary-fixed/20 via-surface-container-low to-secondary-fixed/20 p-4 border border-primary/20">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-on-surface-variant">
-              ${hasRecent ? '최근 진단 수혜 분석 결과' : '2025 예상 청년 지원금'}
+              ${hasRecent ? '최근 진단 수혜 분석 결과' : '2026 예상 청년 지원금'}
             </span>
             <span class="inline-flex items-center gap-1 rounded-md bg-secondary-container px-2 py-0.5 text-xs font-bold text-on-secondary-container">
               <span class="material-symbols-outlined text-[13px]">check_circle</span>
@@ -361,6 +361,24 @@ function renderPersonalizedHero() {
 
       </div>
     `;
+
+    // Item 8: For logged-in users, update the left Hero CTA to point directly to dashboard & re-diagnosis
+    const guestCtaBox = document.getElementById('hero-guest-cta-box');
+    if (guestCtaBox) {
+      guestCtaBox.innerHTML = `
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <a href="dashboard.html" class="group flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-primary text-on-primary font-bold text-base shadow-lg shadow-primary/25 hover:bg-primary-container hover:shadow-primary/40 transition-all active:scale-[0.98] cursor-pointer">
+            <span class="material-symbols-outlined text-xl">dashboard</span>
+            <span>나의 맞춤 대시보드 바로가기</span>
+            <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+          </a>
+          <a href="diagnosis.html" class="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-surface-container text-on-surface font-semibold text-sm hover:bg-surface-container-high transition-colors border border-hairline-border cursor-pointer">
+            <span class="material-symbols-outlined text-lg text-primary">replay</span>
+            <span>새로운 조건으로 다시 진단</span>
+          </a>
+        </div>
+      `;
+    }
   } catch (e) {
     console.error("Personalized hero render failed:", e);
   }

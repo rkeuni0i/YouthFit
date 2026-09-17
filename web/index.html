@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>유스핏 AI (YouthFit AI) - 1분 청년 정책 진단 비서</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="assets/logo/svg/youthfit-icon.svg">
   
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,26 +79,17 @@
   <!-- Global Navigation Header -->
   <header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-hairline-border">
     <div class="h-16 max-w-7xl mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-md">
-      <!-- Logo -->
-      <div class="flex items-center gap-space-sm shrink-0">
-        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
-          <svg class="w-5 h-5 text-on-primary" fill="none" viewBox="0 0 28 28">
-            <rect fill="none" height="28" rx="8" width="28"></rect>
-            <path d="M7 14.5L12 19.5L21 8.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"></path>
-            <circle cx="21.5" cy="8.5" fill="#10B981" r="2.8"></circle>
-          </svg>
-        </div>
-        <a class="font-display text-xl font-bold text-on-surface hover:text-primary transition-colors tracking-tight" href="index.html">
-          YouthFit <span class="text-primary">AI</span>
-        </a>
-      </div>
+      <!-- Logo (Light / Dark Mode Adaptive) -->
+      <a class="flex items-center shrink-0 group py-1" href="index.html" title="YouthFit AI 홈으로 이동">
+        <img src="assets/logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-8 sm:h-9 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
+        <img src="assets/logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-8 sm:h-9 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
+      </a>
 
       <!-- Center Links -->
       <nav class="hidden lg:flex items-center gap-space-xs px-space-xs">
         <a class="px-space-md py-space-sm font-semibold text-primary bg-surface-container rounded-lg transition-colors" href="diagnosis.html">1분 맞춤 진단</a>
         <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="#popular-policies">청년 정책 모아보기</a>
-        <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="#why-youthfit">서비스 소개</a>
-        <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="../data/policies_explorer.html" target="_blank">정책 탐색기 (423건)</a>
+        <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="explorer.html">정책 탐색기 (706건)</a>
       </nav>
 
       <!-- Right CTAs -->
@@ -106,10 +99,6 @@
           <span class="material-symbols-outlined text-[20px] theme-icon text-primary">dark_mode</span>
         </button>
 
-        <a class="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-on-surface-variant bg-surface-container hover:bg-surface-container-high rounded-lg transition-colors border border-hairline-border" href="diagnosis.html">
-          <span class="material-symbols-outlined text-[16px] text-secondary">bolt</span>
-          <span>비회원 진단 (DB 미저장)</span>
-        </a>
         <a class="hidden sm:inline-flex items-center px-space-md py-space-sm text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-colors" href="auth.html">
           로그인
         </a>
@@ -144,7 +133,7 @@
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
                 </span>
-                <span class="text-xs md:text-sm text-primary font-bold">2025 실시간 공공데이터 연동</span>
+                <span class="text-xs md:text-sm text-primary font-bold">2026 실시간 공공데이터 연동</span>
                 <span class="text-xs text-on-surface-variant">서울시 & 온통청년 최신 공고판 반영</span>
               </div>
 
@@ -159,60 +148,18 @@
                 복잡한 50페이지 공고문 대신, <strong class="text-on-surface font-semibold">5가지 핵심 질문</strong>으로 나의 수혜 적격 여부 판별부터 <span class="text-secondary font-bold">최대 360만원</span> 맞춤 지원금 계산까지 원스톱으로 확인하세요.
               </p>
 
-              <!-- Dual CTA Choice Container -->
-              <div class="mt-space-lg w-full">
-                <div class="p-2 rounded-2xl bg-surface-container border border-hairline-border shadow-sm">
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    
-                    <!-- Choice 1: 비회원 빠른 진단 -->
-                    <div class="flex flex-col justify-between p-space-md rounded-xl bg-surface-container-lowest shadow-sm border border-secondary-fixed/50 transition-all hover:border-secondary">
-                      <div class="space-y-1">
-                        <div class="flex items-center justify-between">
-                          <span class="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/40 px-2 py-0.5 text-xs font-bold text-secondary">
-                            <span class="material-symbols-outlined text-[14px]">bolt</span>비회원 빠른 진단
-                          </span>
-                          <span class="text-xs text-on-surface-variant font-medium">소요시간 48초</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-on-surface pt-1">1분 즉시 비회원 문진</h4>
-                        <p class="text-xs text-on-surface-variant leading-relaxed">로그인 없이 브라우저 세션에서 5문항 답변 즉시 수혜 판정 결과를 산출합니다.</p>
-                        <div class="flex flex-wrap items-center gap-2 pt-1 text-xs text-secondary font-semibold">
-                          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span>DB 미저장·익명</span>
-                          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span>즉시 폼 이동</span>
-                        </div>
-                      </div>
-                      <div class="pt-space-md">
-                        <a class="group flex w-full h-11 items-center justify-center gap-space-xs rounded-xl bg-primary px-space-md text-sm font-bold text-on-primary shadow-sm hover:bg-primary-container transition-all" href="diagnosis.html">
-                          <span>비회원으로 즉시 진단 시작</span>
-                          <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-                        </a>
-                      </div>
-                    </div>
-
-                    <!-- Choice 2: 회원 맞춤 진단 -->
-                    <div class="flex flex-col justify-between p-space-md rounded-xl bg-surface-container-low/60 border border-hairline-border transition-all hover:bg-surface-container-lowest">
-                      <div class="space-y-1">
-                        <div class="flex items-center justify-between">
-                          <span class="inline-flex items-center gap-1 rounded-full bg-primary-fixed px-2 py-0.5 text-xs font-bold text-primary">
-                            <span class="material-symbols-outlined text-[14px]">cloud_done</span>회원 맞춤 진단
-                          </span>
-                          <span class="text-xs text-primary font-semibold">추천 플랜</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-on-surface pt-1">로그인 후 영구 보관 진단</h4>
-                        <p class="text-xs text-on-surface-variant leading-relaxed">진단 결과를 클라우드 DB에 보관하고 새 정책 공고 카카오 알림을 지원합니다.</p>
-                        <div class="flex flex-wrap items-center gap-2 pt-1 text-xs text-primary font-semibold">
-                          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span>정책 알림 지원</span>
-                          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span>서류 패스 연동</span>
-                        </div>
-                      </div>
-                      <div class="pt-space-md">
-                        <a class="flex w-full h-11 items-center justify-center gap-space-xs rounded-xl bg-surface-container-lowest px-space-md text-sm font-semibold text-on-surface hover:bg-surface-container hover:text-primary transition-colors border border-hairline-border shadow-sm" href="auth.html">
-                          <span class="material-symbols-outlined text-[18px] text-primary">login</span>
-                          <span>회원 로그인 및 진단</span>
-                        </a>
-                      </div>
-                    </div>
-
-                  </div>
+              <!-- Unified Hero CTA (Item 5 & 8) -->
+              <div class="mt-space-lg w-full" id="hero-guest-cta-box">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <a class="group flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-primary text-on-primary font-bold text-base shadow-lg shadow-primary/25 hover:bg-primary-container hover:shadow-primary/40 transition-all active:scale-[0.98] cursor-pointer" href="diagnosis.html">
+                    <span class="material-symbols-outlined text-xl">bolt</span>
+                    <span>1분 맞춤 무료 진단 시작하기</span>
+                    <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+                  </a>
+                  <a class="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-surface-container text-on-surface font-semibold text-sm hover:bg-surface-container-high transition-colors border border-hairline-border cursor-pointer" href="auth.html">
+                    <span class="material-symbols-outlined text-lg text-primary">login</span>
+                    <span>회원 로그인 / 가입</span>
+                  </a>
                 </div>
               </div>
 
@@ -357,133 +304,7 @@
         </div>
       </section>
 
-      <!-- Value Proposition: 3 Core Strengths (Bento Grid) -->
-      <section class="w-full py-space-xl bg-surface" id="why-youthfit">
-        <div class="mx-auto max-w-7xl px-margin-mobile md:px-margin">
-          <div class="rounded-3xl bg-surface-container-low/60 p-space-md md:p-space-lg border border-hairline-border">
-            
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
-              <div class="space-y-1">
-                <div class="flex items-center gap-space-xs">
-                  <span class="text-xs font-bold uppercase tracking-wider text-primary">WHY YOUTHFIT AI</span>
-                  <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
-                  <span class="text-xs text-secondary font-semibold">공식 지침서 AI 기반 분석</span>
-                </div>
-                <h2 class="text-2xl font-bold text-on-surface">왜 유스핏 AI 진단을 선택해야 할까요?</h2>
-                <p class="text-sm text-on-surface-variant">복잡한 청년 정책 공고문 50장을 단 1분 만에, 2단계 정밀 AI 엔진으로 맞춤 분석합니다.</p>
-              </div>
 
-              <button class="inline-flex items-center justify-center gap-space-xs px-space-md py-2.5 rounded-xl bg-surface-container-lowest text-primary text-sm font-semibold hover:bg-surface-container hover:text-primary-container shadow-sm border border-hairline-border transition-all shrink-0" id="toggle-why-details" onclick="const content = document.getElementById('why-details-grid'); const icon = document.getElementById('toggle-arrow-icon'); const text = document.getElementById('toggle-button-text'); const isHidden = content.classList.contains('hidden'); if(isHidden) { content.classList.remove('hidden'); icon.textContent = 'expand_less'; text.textContent = '차별점 접기'; } else { content.classList.add('hidden'); icon.textContent = 'expand_more'; text.textContent = '상세 원리 및 차별점 보기'; }" type="button">
-                <span class="material-symbols-outlined text-[18px] text-primary">tune</span>
-                <span id="toggle-button-text">차별점 및 상세 원리 접기</span>
-                <span class="material-symbols-outlined text-[20px] transition-transform" id="toggle-arrow-icon">expand_less</span>
-              </button>
-            </div>
-
-            <div class="mt-space-lg pt-space-md border-t border-hairline-border" id="why-details-grid">
-              <div class="grid grid-cols-1 gap-gutter md:grid-cols-3">
-                
-                <!-- Step 01 -->
-                <div class="civic-card flex flex-col justify-between p-space-md md:p-space-lg">
-                  <div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-fixed text-primary">
-                      <span class="material-symbols-outlined text-[28px]">flash_on</span>
-                    </div>
-                    <div class="mt-space-md flex items-center gap-2">
-                      <span class="text-xs font-bold text-primary uppercase">STEP 01</span>
-                      <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
-                      <span class="text-xs text-on-surface-variant">소요시간 단 48초</span>
-                    </div>
-                    <h3 class="mt-1.5 text-lg font-bold text-on-surface">01. 1분 초간단 맞춤 문진</h3>
-                    <p class="mt-2 text-xs text-on-surface-variant leading-relaxed">
-                      원클릭 페르소나 및 5개 핵심 질문으로 복잡한 서류 작성 없이 나이, 거주지, 취업상태, 소득분위를 즉시 파악합니다.
-                    </p>
-                  </div>
-                  <div class="mt-space-md rounded-xl bg-surface-container-low p-space-sm border border-hairline-border">
-                    <div class="flex items-center justify-between text-xs text-on-surface-variant mb-1.5">
-                      <span>질문 진행도</span>
-                      <span class="font-bold text-primary">5 / 5 완료</span>
-                    </div>
-                    <div class="h-1.5 w-full rounded-full bg-surface-container overflow-hidden">
-                      <div class="h-1.5 rounded-full bg-primary w-full"></div>
-                    </div>
-                    <div class="mt-2 flex items-center gap-1 text-xs font-semibold text-secondary">
-                      <span class="material-symbols-outlined text-[16px]">check</span>
-                      <span>본인인증·주민번호 없이 즉시 산출</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Step 02 -->
-                <div class="civic-card flex flex-col justify-between p-space-md md:p-space-lg">
-                  <div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-fixed text-secondary">
-                      <span class="material-symbols-outlined text-[28px]">smart_toy</span>
-                    </div>
-                    <div class="mt-space-md flex items-center gap-2">
-                      <span class="text-xs font-bold text-secondary uppercase">STEP 02</span>
-                      <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
-                      <span class="text-xs text-on-surface-variant">정밀 교차 검증</span>
-                    </div>
-                    <h3 class="mt-1.5 text-lg font-bold text-on-surface">02. 2단계 하이브리드 AI 엔진</h3>
-                    <p class="mt-2 text-xs text-on-surface-variant leading-relaxed">
-                      1차 룰 필터로 420여 개 정책 압축 + 2차 Gemini AI 정밀 적격 판별 및 단서 조항/제외 요건을 실시간 검증합니다.
-                    </p>
-                  </div>
-                  <div class="mt-space-md rounded-xl bg-surface-container-low p-space-sm space-y-1.5 border border-hairline-border">
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="text-on-surface-variant">1차 룰 기반 고속 필터</span>
-                      <span class="font-bold text-secondary">423개 전수 탐색</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="text-on-surface-variant">2차 LLM 예외조항 분석</span>
-                      <span class="font-bold text-primary">중복 배제 검증</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="text-on-surface-variant">최종 매칭 정밀도</span>
-                      <span class="font-bold text-secondary">99.4% 적합 판정</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Step 03 -->
-                <div class="civic-card flex flex-col justify-between p-space-md md:p-space-lg">
-                  <div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-fixed text-primary">
-                      <span class="material-symbols-outlined text-[28px]">folder_special</span>
-                    </div>
-                    <div class="mt-space-md flex items-center gap-2">
-                      <span class="text-xs font-bold text-primary uppercase">STEP 03</span>
-                      <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
-                      <span class="text-xs text-on-surface-variant">신청 편의성</span>
-                    </div>
-                    <h3 class="mt-1.5 text-lg font-bold text-on-surface">03. 정부24 원클릭 서류 패스</h3>
-                    <p class="mt-2 text-xs text-on-surface-variant leading-relaxed">
-                      자격 증빙에 필요한 주민등록초본, 고용보험 이력내역서 등 필수 서류 체크리스트 및 원클릭 발급 가이드를 제공합니다.
-                    </p>
-                  </div>
-                  <div class="mt-space-md rounded-xl bg-surface-container-low p-space-sm space-y-1.5 border border-hairline-border">
-                    <div class="flex items-center gap-2 text-xs text-on-surface">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">task_alt</span>
-                      <span>주민등록표초본 자동 체크</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-on-surface">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">task_alt</span>
-                      <span>고용보험 피보험자격 발급 안내</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-on-surface">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">task_alt</span>
-                      <span>정부24 무료 즉시 발급 링크</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
 
       <!-- Popular Policies Showcase Section -->
       <section class="w-full py-space-xl bg-surface-container-low/50" id="popular-policies">
@@ -652,7 +473,10 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-space-lg">
         <div class="md:col-span-2 space-y-space-sm">
           <div class="flex items-center gap-space-sm">
-            <span class="font-display text-lg font-bold text-on-surface">YouthFit AI</span>
+            <a href="index.html" class="inline-block" title="YouthFit AI">
+              <img src="assets/logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-6 sm:h-7 w-auto dark:hidden">
+              <img src="assets/logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-6 sm:h-7 w-auto hidden dark:block">
+            </a>
             <span class="text-xs font-semibold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">v2.4-kr</span>
           </div>
           <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed max-w-md">
@@ -671,7 +495,7 @@
             <li><a class="hover:text-primary transition-colors" href="loading.html">AI 연산 로딩 화면</a></li>
             <li><a class="hover:text-primary transition-colors" href="dashboard.html">진단 결과 대시보드</a></li>
             <li><a class="hover:text-primary transition-colors" href="auth.html">회원가입 및 로그인</a></li>
-            <li><a class="hover:text-primary transition-colors" href="../data/policies_explorer.html" target="_blank">온통청년 423건 탐색기</a></li>
+            <li><a class="hover:text-primary transition-colors" href="explorer.html">온통청년 706건 정책 탐색기</a></li>
           </ul>
         </div>
 
@@ -687,7 +511,7 @@
       </div>
 
       <div class="pt-space-md border-t border-hairline-border flex flex-col sm:flex-row items-center justify-between gap-space-sm text-xs text-on-surface-variant">
-        <p>© 2025 Team YouthFit AI. All rights reserved.</p>
+        <p>© 2026 Team YouthFit AI. All rights reserved.</p>
         <p class="text-on-surface-variant/80">본 서비스는 청년 지원 정책의 알고리즘 매칭 시뮬레이션을 제공하며, 최종 선발 여부는 주관 부처의 심사에 따릅니다.</p>
       </div>
   <!-- Floating Quick Theme Switcher -->

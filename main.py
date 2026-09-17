@@ -66,6 +66,11 @@ async def serve_dashboard():
 async def serve_auth():
     return FileResponse(os.path.join(web_dir, "auth.html"))
 
+@app.get("/explorer")
+@app.get("/explorer.html")
+async def serve_explorer():
+    return FileResponse(os.path.join(web_dir, "explorer.html"))
+
 # 3. REST API 정의
 class DiagnosisRequest(BaseModel):
     age: int = 24
@@ -184,8 +189,9 @@ async def api_get_profile(user_id: int = Query(...)):
 async def api_get_policies(
     category: Optional[str] = Query(None, description="대분류 (예: 일자리, 주거, 금융･복지･문화, 교육･직업훈련)"),
     keyword: Optional[str] = Query(None, description="검색 키워드 (예: 월세, 면접, 수당)"),
+    region: Optional[str] = Query(None, description="지역 필터 (예: 서울, 경기, 부산, 광주 등)"),
     age: Optional[int] = Query(None, description="만 나이 필터"),
-    limit: int = Query(20, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=1000),
     offset: int = Query(0, ge=0)
 ):
     """
@@ -195,14 +201,24 @@ async def api_get_policies(
         all_p = get_all_policies()
         filtered = []
         for p in all_p:
-            if category and category not in (p.get("category_large") or ""):
+            if category and category != "전체" and category not in (p.get("category_large") or ""):
                 continue
             if keyword:
                 kw = keyword.lower()
                 name = (p.get("name") or "").lower()
                 content = (p.get("support_content") or "").lower()
                 expl = (p.get("explanation") or "").lower()
-                if kw not in name and kw not in content and kw not in expl:
+                sup = (p.get("supervising_inst") or "").lower()
+                op = (p.get("operating_inst") or "").lower()
+                if kw not in name and kw not in content and kw not in expl and kw not in sup and kw not in op:
+                    continue
+            if region and region != "전체":
+                reg_kw = region.lower()
+                sup = (p.get("supervising_inst") or "").lower()
+                op = (p.get("operating_inst") or "").lower()
+                name = (p.get("name") or "").lower()
+                zip_c = (p.get("zip_codes") or "").lower()
+                if reg_kw not in sup and reg_kw not in op and reg_kw not in name and reg_kw not in zip_c:
                     continue
             if age is not None:
                 min_a = p.get("min_age", 0) or 0
