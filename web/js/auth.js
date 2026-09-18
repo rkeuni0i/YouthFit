@@ -2,6 +2,44 @@
  * YouthFit AI - Authentication & Google OAuth Logic with Database Persistence
  */
 
+// Fallback Auth Helpers in case app.js loads asynchronously or is missing
+function clearAuthUser() {
+  if (typeof window.clearAuthUser === 'function' && window.clearAuthUser !== clearAuthUser) {
+    return window.clearAuthUser();
+  }
+  try {
+    sessionStorage.clear();
+    localStorage.removeItem('youthfit_user');
+    localStorage.removeItem('youthfit_member_profile');
+    localStorage.removeItem('youthfit_diagnosis_result');
+    localStorage.removeItem('youthfit_profile');
+  } catch (e) {
+    console.warn("clearAuthUser fallback error:", e);
+  }
+}
+
+function setAuthUser(userData, remember = false) {
+  if (typeof window.setAuthUser === 'function' && window.setAuthUser !== setAuthUser) {
+    return window.setAuthUser(userData, remember);
+  }
+  try {
+    if (!userData) return;
+    sessionStorage.setItem('youthfit_session_ver', '20260918_v3');
+    sessionStorage.setItem('youthfit_user', JSON.stringify(userData));
+    if (remember) {
+      const clone = Object.assign({}, userData);
+      clone.remember_expires = Date.now() + 7 * 24 * 60 * 60 * 1000;
+      localStorage.setItem('youthfit_user', JSON.stringify(clone));
+    } else {
+      localStorage.removeItem('youthfit_user');
+      localStorage.removeItem('youthfit_member_profile');
+      localStorage.removeItem('youthfit_diagnosis_result');
+    }
+  } catch (e) {
+    console.warn("setAuthUser fallback error:", e);
+  }
+}
+
 // Tab Switching (Login / Signup / Guest)
 function switchAuthTab(tab) {
   const paneLogin = document.getElementById('pane-login');
@@ -216,15 +254,25 @@ async function executeGoogleOAuthLogin(payload) {
     }
 
     const userData = json.data;
-    localStorage.removeItem('youthfit_profile');
-    sessionStorage.clear();
+    clearAuthUser();
 
-    localStorage.setItem('youthfit_user', JSON.stringify(userData));
+    if (isUserAdmin(userData)) {
+      userData.role = 'admin';
+    }
+
+    const remember = document.getElementById('login-remember')?.checked || false;
+    setAuthUser(userData, remember);
     if (userData.profile?.user_conditions) {
-      localStorage.setItem('youthfit_member_profile', JSON.stringify(userData.profile.user_conditions));
+      sessionStorage.setItem('youthfit_member_profile', JSON.stringify(userData.profile.user_conditions));
+      if (remember) {
+        localStorage.setItem('youthfit_member_profile', JSON.stringify(userData.profile.user_conditions));
+      }
     }
     if (userData.profile?.recent_diagnosis) {
-      localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
+      sessionStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
+      if (remember) {
+        localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
+      }
     }
 
     closeGoogleModal();
@@ -257,6 +305,7 @@ async function handleLoginSubmit(event) {
   const emailInput = document.getElementById('login-email');
   let email = emailInput?.value?.trim() || '';
   const password = document.getElementById('login-password')?.value;
+  const remember = document.getElementById('login-remember')?.checked || false;
   const submitBtn = event.target.querySelector('button[type="submit"]');
 
   if (!email || !password) {
@@ -287,19 +336,26 @@ async function handleLoginSubmit(event) {
     }
 
     const userData = json.data;
-    localStorage.removeItem('youthfit_profile');
-    sessionStorage.clear();
+    clearAuthUser();
 
     if (isUserAdmin(userData)) {
       userData.role = 'admin';
     }
 
-    localStorage.setItem('youthfit_user', JSON.stringify(userData));
+    // 세션(sessionStorage) 우선 저장 및 옵션 체크 시 지속(localStorage) 저장
+    setAuthUser(userData, remember);
+
     if (userData.profile?.user_conditions) {
-      localStorage.setItem('youthfit_member_profile', JSON.stringify(userData.profile.user_conditions));
+      sessionStorage.setItem('youthfit_member_profile', JSON.stringify(userData.profile.user_conditions));
+      if (remember) {
+        localStorage.setItem('youthfit_member_profile', JSON.stringify(userData.profile.user_conditions));
+      }
     }
     if (userData.profile?.recent_diagnosis) {
-      localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
+      sessionStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
+      if (remember) {
+        localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
+      }
     }
 
     // Role-based immediate redirection
@@ -322,7 +378,6 @@ function redirectAfterLogin(userData) {
   // 관리자 계정: 딜레이 없이 즉시 admin.html로 직행 렌더링
   if (isUserAdmin(userData)) {
     userData.role = 'admin';
-    localStorage.setItem('youthfit_user', JSON.stringify(userData));
     console.log('[Auth] Admin user detected. Immediately loading admin.html');
     window.location.replace('admin.html');
     return;
@@ -390,11 +445,8 @@ async function handleSignupSubmit(event) {
     }
 
     const userData = json.data;
-    // Requirement 1: Purge any guest residual profile so user starts clean
-    localStorage.removeItem('youthfit_profile');
-    sessionStorage.clear();
-
-    localStorage.setItem('youthfit_user', JSON.stringify(userData));
+    clearAuthUser();
+    setAuthUser(userData, false);
     showToast(`🎉 ${userData.name}님, 유스핏 AI 회원가입이 완료되었습니다! 1분 맞춤 진단으로 이동합니다.`, 'success');
 
     setTimeout(() => {
@@ -434,9 +486,8 @@ function showToast(msg, type = 'info') {
 // Check logged in user on page load
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    const userRaw = localStorage.getItem('youthfit_user');
-    if (userRaw) {
-      const user = JSON.parse(userRaw);
+    const user = (typeof getAuthUser === 'function') ? getAuthUser() : null;
+    if (user) {
       console.log("Logged in user:", user.email, user.name);
     }
   } catch (e) {}

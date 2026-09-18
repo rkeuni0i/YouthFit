@@ -153,21 +153,128 @@ window.toggleTheme = toggleTheme;
 
 
 /**
+ * Centralized Auth Session Lifecycle Manager
+ * 
+ * Policy:
+ * 1. Default active session: stored strictly in sessionStorage (retained across F5/refresh and page navigation, automatically destroyed when the browser window/tab closes).
+ * 2. Remember-me ("이 기기에서 로그인 상태 유지"): stored in localStorage with an explicit 7-day expiration timestamp (remember_expires).
+ * 3. Landing page clean state: If a user closes and re-opens the browser without remember-me, or visits for the first time, they are always in a clean logged-out state (no lingering credentials).
+ */
+const SESSION_VERSION_KEY = 'youthfit_session_ver';
+const CURRENT_SESSION_VERSION = '20260918_v3';
+
+function getAuthUser() {
+  try {
+    // 1. Validate active session storage (retained on refresh, destroyed on tab/window close)
+    const sessionVer = sessionStorage.getItem(SESSION_VERSION_KEY);
+    const sessionRaw = sessionStorage.getItem('youthfit_user');
+    if (sessionRaw && sessionVer === CURRENT_SESSION_VERSION) {
+      return JSON.parse(sessionRaw);
+    }
+
+    // 2. Check persistent localStorage ONLY if explicitly remembered and not expired
+    const localRaw = localStorage.getItem('youthfit_user');
+    if (localRaw) {
+      const user = JSON.parse(localRaw);
+      // Expired: completely purge
+      if (user && user.remember_expires && Date.now() > user.remember_expires) {
+        localStorage.removeItem('youthfit_user');
+        localStorage.removeItem('youthfit_member_profile');
+        localStorage.removeItem('youthfit_diagnosis_result');
+        return null;
+      }
+      // Valid remember-me session: hydrate sessionStorage for current active session
+      if (user && user.remember_expires && Date.now() <= user.remember_expires) {
+        sessionStorage.setItem('youthfit_user', localRaw);
+        sessionStorage.setItem(SESSION_VERSION_KEY, CURRENT_SESSION_VERSION);
+        return user;
+      }
+      // Legacy user without explicit remember_expires: purge completely so landing page is logged out!
+      localStorage.removeItem('youthfit_user');
+      localStorage.removeItem('youthfit_member_profile');
+      localStorage.removeItem('youthfit_diagnosis_result');
+      return null;
+    }
+  } catch (e) {
+    console.error("Auth session parse error:", e);
+  }
+  return null;
+}
+
+function setAuthUser(userData, remember = false) {
+  if (!userData) return;
+  const userStr = JSON.stringify(userData);
+  sessionStorage.setItem(SESSION_VERSION_KEY, CURRENT_SESSION_VERSION);
+  sessionStorage.setItem('youthfit_user', userStr);
+
+  if (remember) {
+    const clone = Object.assign({}, userData);
+    clone.remember_expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+    localStorage.setItem('youthfit_user', JSON.stringify(clone));
+  } else {
+    // When remember is false, purge any residual localStorage
+    localStorage.removeItem('youthfit_user');
+    localStorage.removeItem('youthfit_member_profile');
+    localStorage.removeItem('youthfit_diagnosis_result');
+  }
+}
+
+function clearAuthUser() {
+  sessionStorage.removeItem(SESSION_VERSION_KEY);
+  sessionStorage.removeItem('youthfit_user');
+  sessionStorage.removeItem('youthfit_member_profile');
+  sessionStorage.removeItem('youthfit_diagnosis_result');
+  sessionStorage.removeItem('youthfit_transient_diagnosis_result');
+  sessionStorage.removeItem('youthfit_transient_profile');
+  sessionStorage.clear();
+
+  localStorage.removeItem('youthfit_user');
+  localStorage.removeItem('youthfit_member_profile');
+  localStorage.removeItem('youthfit_diagnosis_result');
+  localStorage.removeItem('youthfit_profile');
+}
+
+window.getAuthUser = getAuthUser;
+window.setAuthUser = setAuthUser;
+window.clearAuthUser = clearAuthUser;
+
+// Immediate Cleanup of any stale/legacy unremembered credentials so landing is 100% clean
+(function purgeLegacyAuthResidue() {
+  try {
+    const sessionVer = sessionStorage.getItem(SESSION_VERSION_KEY);
+    if (sessionVer !== CURRENT_SESSION_VERSION) {
+      sessionStorage.removeItem('youthfit_user');
+      sessionStorage.removeItem('youthfit_member_profile');
+      sessionStorage.removeItem('youthfit_diagnosis_result');
+    }
+    const legacyLocal = localStorage.getItem('youthfit_user');
+    if (legacyLocal) {
+      const parsed = JSON.parse(legacyLocal);
+      if (!parsed || !parsed.remember_expires || Date.now() > parsed.remember_expires) {
+        localStorage.removeItem('youthfit_user');
+        localStorage.removeItem('youthfit_member_profile');
+        localStorage.removeItem('youthfit_diagnosis_result');
+      }
+    }
+  } catch (e) {
+    localStorage.removeItem('youthfit_user');
+  }
+})();
+
+/**
  * Global Auth Status Synchronization across all web pages
  */
 function updateGlobalAuthHeader() {
   try {
-    const raw = localStorage.getItem('youthfit_user');
+    const user = getAuthUser();
     const adminLink = document.getElementById('sidebar-admin-link');
-    if (!raw) {
+    if (!user) {
       if (adminLink) {
         adminLink.classList.add('hidden');
         adminLink.style.display = 'none';
       }
       return;
     }
-    const user = JSON.parse(raw);
-    if (!user) return;
 
     // Admin privileges check for sidebar admin monitoring button
     if (adminLink) {
@@ -233,13 +340,10 @@ function renderPersonalizedHero() {
   const container = document.getElementById('hero-persona-card-container');
   if (!container) return;
 
-  const raw = localStorage.getItem('youthfit_user');
-  if (!raw) return; // Keep the default '김OO 님 (가상 예시)' card for guests
+  const user = getAuthUser();
+  if (!user || !user.name) return; // Keep the default '김OO 님 (가상 예시)' card for guests
 
   try {
-    const user = JSON.parse(raw);
-    if (!user || !user.name) return;
-
     // Retrieve user's conditions (or default fallback)
     const savedProf = localStorage.getItem('youthfit_member_profile');
     const userProf = user.profile?.user_conditions || (savedProf ? JSON.parse(savedProf) : null);
@@ -422,11 +526,10 @@ async function triggerOneClickDiagnosis() {
   }
 
   try {
-    const raw = localStorage.getItem('youthfit_user');
-    const user = raw ? JSON.parse(raw) : null;
+    const user = getAuthUser();
     
     // Retrieve member profile
-    const savedProf = localStorage.getItem('youthfit_member_profile');
+    const savedProf = sessionStorage.getItem('youthfit_member_profile') || localStorage.getItem('youthfit_member_profile');
     const profile = (user && user.profile?.user_conditions) || (savedProf ? JSON.parse(savedProf) : {
       age: 24,
       region: '서울',
@@ -450,8 +553,12 @@ async function triggerOneClickDiagnosis() {
     }
 
     const diagData = json.data;
-    localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(diagData));
-    localStorage.setItem('youthfit_member_profile', JSON.stringify(profile));
+    sessionStorage.setItem('youthfit_diagnosis_result', JSON.stringify(diagData));
+    sessionStorage.setItem('youthfit_member_profile', JSON.stringify(profile));
+    if (localStorage.getItem('youthfit_user')) {
+      localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(diagData));
+      localStorage.setItem('youthfit_member_profile', JSON.stringify(profile));
+    }
 
     // Persist to user DB if user exists
     if (user && user.id) {
@@ -475,7 +582,10 @@ async function triggerOneClickDiagnosis() {
         total_benefit_formatted: diagData.total_benefit_formatted,
         matched_count: diagData.matched_count
       };
-      localStorage.setItem('youthfit_user', JSON.stringify(user));
+      sessionStorage.setItem('youthfit_user', JSON.stringify(user));
+      if (localStorage.getItem('youthfit_user')) {
+        localStorage.setItem('youthfit_user', JSON.stringify(user));
+      }
     }
 
     if (window.showToast) {
@@ -496,11 +606,7 @@ async function triggerOneClickDiagnosis() {
 }
 
 function handleGlobalLogout() {
-  localStorage.removeItem('youthfit_user');
-  localStorage.removeItem('youthfit_member_profile');
-  localStorage.removeItem('youthfit_diagnosis_result');
-  localStorage.removeItem('youthfit_profile');
-  sessionStorage.clear();
+  clearAuthUser();
 
   if (window.showToast) {
     window.showToast('성공적으로 로그아웃되었습니다.', 'info');
@@ -509,7 +615,7 @@ function handleGlobalLogout() {
   }
   setTimeout(() => {
     window.location.reload();
-  }, 500);
+  }, 400);
 }
 
 window.triggerOneClickDiagnosis = triggerOneClickDiagnosis;

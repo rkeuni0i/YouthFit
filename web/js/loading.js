@@ -21,14 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Check login authentication state
-  const rawUser = localStorage.getItem('youthfit_user');
+  const rawUser = sessionStorage.getItem('youthfit_user') || localStorage.getItem('youthfit_user');
   const loggedInUser = rawUser ? JSON.parse(rawUser) : null;
   const isMember = !!(loggedInUser && loggedInUser.id);
 
   // Retrieve customized profile if present
   try {
     if (isMember) {
-      const saved = localStorage.getItem('youthfit_member_profile') || (loggedInUser.profile?.user_conditions ? JSON.stringify(loggedInUser.profile.user_conditions) : null);
+      const saved = sessionStorage.getItem('youthfit_member_profile') || localStorage.getItem('youthfit_member_profile') || (loggedInUser.profile?.user_conditions ? JSON.stringify(loggedInUser.profile.user_conditions) : null);
       if (saved) {
         profile = Object.assign(profile, JSON.parse(saved));
       }
@@ -69,7 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(json => {
       if (json && json.status === 'success') {
         if (isMember) {
-          localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(json.data));
+          sessionStorage.setItem('youthfit_diagnosis_result', JSON.stringify(json.data));
+          if (localStorage.getItem('youthfit_user')) {
+            localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(json.data));
+          }
           // Persist to user DB
           fetch('/api/user/save-diagnosis', {
             method: 'POST',

@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const userBannerEl = document.getElementById('diagnosis-user-banner');
 
   // Check login authentication state
-  const rawUser = localStorage.getItem('youthfit_user');
+  const rawUser = sessionStorage.getItem('youthfit_user') || localStorage.getItem('youthfit_user');
   const loggedInUser = rawUser ? JSON.parse(rawUser) : null;
   const isMember = !!(loggedInUser && loggedInUser.id);
 
@@ -526,13 +526,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (startBtn) {
     startBtn.addEventListener('click', () => {
       if (isMember) {
-        // Logged-in member: remember info in localStorage and sync with user DB
+        // Logged-in member: remember info in sessionStorage & optional localStorage, sync with user DB
         try {
-          localStorage.setItem('youthfit_member_profile', JSON.stringify(state));
+          sessionStorage.setItem('youthfit_member_profile', JSON.stringify(state));
+          if (localStorage.getItem('youthfit_user')) {
+            localStorage.setItem('youthfit_member_profile', JSON.stringify(state));
+          }
           if (loggedInUser) {
             loggedInUser.profile = loggedInUser.profile || {};
             loggedInUser.profile.user_conditions = state;
-            localStorage.setItem('youthfit_user', JSON.stringify(loggedInUser));
+            sessionStorage.setItem('youthfit_user', JSON.stringify(loggedInUser));
+            if (localStorage.getItem('youthfit_user')) {
+              localStorage.setItem('youthfit_user', JSON.stringify(loggedInUser));
+            }
 
             // Sync to backend DB asynchronously
             fetch('/api/user/update-profile', {

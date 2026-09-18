@@ -31,8 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Check member authentication & admin permissions
-  const rawUser = localStorage.getItem('youthfit_user');
-  const loggedInUser = rawUser ? JSON.parse(rawUser) : null;
+  const loggedInUser = (typeof getAuthUser === 'function') ? getAuthUser() : (sessionStorage.getItem('youthfit_user') ? JSON.parse(sessionStorage.getItem('youthfit_user')) : null);
   const isMember = !!(loggedInUser && (loggedInUser.id || loggedInUser.email));
   const uRole = (loggedInUser?.role || '').toLowerCase();
   const uEmail = (loggedInUser?.email || '').toLowerCase();
@@ -54,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let result = null;
   try {
     if (isMember) {
-      const raw = localStorage.getItem('youthfit_diagnosis_result');
+      const raw = sessionStorage.getItem('youthfit_diagnosis_result') || localStorage.getItem('youthfit_diagnosis_result');
       if (raw) {
         result = JSON.parse(raw);
       }
@@ -96,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let profile = { age: 24, district: '관악구', jobStatus: 'jobseeker', household: 'single', income: 'income60' };
     try {
       if (isMember) {
-        const savedProf = localStorage.getItem('youthfit_member_profile');
+        const savedProf = sessionStorage.getItem('youthfit_member_profile') || localStorage.getItem('youthfit_member_profile');
         if (savedProf) profile = Object.assign(profile, JSON.parse(savedProf));
       }
     } catch (e) {}
