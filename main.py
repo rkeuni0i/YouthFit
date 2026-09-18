@@ -2,8 +2,8 @@ import os
 import sys
 import json
 import time
-from typing import Optional, Dict, Any
-from fastapi import FastAPI, Query, HTTPException, Request
+from typing import Optional, Dict, Any, List
+from fastapi import FastAPI, Query, HTTPException, Request, Header, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +12,7 @@ from pydantic import BaseModel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 from scripts import db_connection
 from services.diagnosis_engine import diagnose_policies, get_all_policies
-from services import admin_service
+from services import admin_service, auth_service
 
 app = FastAPI(
     title="YouthFit AI - 청년 복지 정책 AI 비서",
@@ -30,6 +30,17 @@ app.add_middleware(
 )
 
 # 웹 서비스 작동 로그 자동 수집 미들웨어
+@app.middleware("http")
+async def no_cache_middleware(request: Request, call_next):
+    response = await call_next(request)
+    path = request.url.path
+    # HTML, JS 파일 및 API 요청에 대해 브라우저 캐시 방지 헤더 설정
+    if path.endswith(".html") or path.endswith(".js") or path == "/" or path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 @app.middleware("http")
 async def log_requests_middleware(request: Request, call_next):
     start_time = time.time()
@@ -177,7 +188,9 @@ class LoginRequest(BaseModel):
     password: str
 
 class GoogleAuthRequest(BaseModel):
-    email: str
+    credential: Optional[str] = None   # Google OAuth 2.0 / OIDC ID Token (JWT)
+    access_token: Optional[str] = None # Google OAuth 2.0 Access Token
+    email: Optional[str] = None
     name: Optional[str] = "구글 회원"
     google_id: Optional[str] = ""
 
@@ -189,6 +202,16 @@ class SaveDiagnosisRequest(BaseModel):
 class UpdateProfileRequest(BaseModel):
     user_id: int
     profile: Dict[str, Any]
+
+@app.get("/api/auth/google/config")
+async def api_google_config():
+    """Google OAuth 2.0 클라이언트 ID 및 설정 반환"""
+    client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+    return JSONResponse(content={
+        "status": "success",
+        "client_id": client_id,
+        "configured": bool(client_id)
+    })
 
 @app.post("/api/auth/signup")
 async def api_signup(req: SignupRequest):
@@ -214,14 +237,51 @@ async def api_login(req: LoginRequest):
 
 @app.post("/api/auth/google")
 async def api_google_auth(req: GoogleAuthRequest):
-    """Google 소셜 계정 원클릭 로그인 / 회원가입"""
+    """Google OAuth 2.0 소셜 로그인 / 회원가입 (Token 검증 지원)"""
+    import urllib.request
+    email = req.email
+    name = req.name or "구글 회원"
+    google_id = req.google_id or ""
+
+    # 1. Google OAuth 2.0 ID Token (credential) 검증
+    if req.credential:
+        try:
+            url = f"https://oauth2.googleapis.com/tokeninfo?id_token={req.credential}"
+            with urllib.request.urlopen(url, timeout=5) as resp:
+                if resp.status == 200:
+                    info = json.loads(resp.read().decode('utf-8'))
+                    email = info.get("email", email)
+                    name = info.get("name", name)
+                    google_id = info.get("sub", google_id)
+        except Exception as err:
+            print(f"[!] Google tokeninfo verification warning: {err}")
+
+    # 2. Google OAuth 2.0 Access Token 검증
+    elif req.access_token:
+        try:
+            req_info = urllib.request.Request(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {req.access_token}"}
+            )
+            with urllib.request.urlopen(req_info, timeout=5) as resp:
+                if resp.status == 200:
+                    info = json.loads(resp.read().decode('utf-8'))
+                    email = info.get("email", email)
+                    name = info.get("name", name)
+                    google_id = info.get("sub", google_id)
+        except Exception as err:
+            print(f"[!] Google userinfo verification warning: {err}")
+
+    if not email:
+        raise HTTPException(status_code=400, detail="유효한 Google 이메일 정보를 확인할 수 없습니다.")
+
     try:
-        res = authenticate_google_user(req.email, req.name, req.google_id)
+        res = authenticate_google_user(email, name, google_id)
         return JSONResponse(content={"status": "success", "data": res})
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Google 로그인 처리 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Google OAuth 2.0 로그인 처리 오류: {str(e)}")
 
 @app.post("/api/user/save-diagnosis")
 async def api_save_diagnosis(req: SaveDiagnosisRequest):
@@ -383,7 +443,32 @@ async def api_track_policy_click(req: PolicyClickRequest, request: Request):
     except Exception as e:
         return JSONResponse(status_code=500, content={"status": "error", "detail": str(e)})
 
-@app.get("/api/admin/overview")
+# ==========================================
+# 관리자 권한(RBAC) 가드 및 관리자 전용 API
+# ==========================================
+
+async def require_admin(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
+    """
+    /api/admin/* 엔드포인트 보호용 RBAC 의존성 가드
+    요청 헤더 'Authorization: Bearer <token>'을 추출하고 검증하여
+    role == 'admin'인 관리자만 접근을 허용합니다.
+    """
+    if not authorization:
+        raise HTTPException(
+            status_code=401, 
+            detail="인증 토큰이 누락되었습니다. 관리자 계정으로 로그인해 주세요."
+        )
+    
+    token = authorization.replace("Bearer ", "").strip()
+    admin_user = auth_service.verify_admin_token(token)
+    if not admin_user:
+        raise HTTPException(
+            status_code=403, 
+            detail="접근 권한이 없습니다. 관리자(admin) 계정만 접속할 수 있습니다."
+        )
+    return admin_user
+
+@app.get("/api/admin/overview", dependencies=[Depends(require_admin)])
 async def api_admin_overview():
     """관리자 종합 지표 (진단수, 사용자수, API호출수, 인기정책 TOP10, 최근로그)"""
     try:
@@ -392,7 +477,7 @@ async def api_admin_overview():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/admin/logs/user")
+@app.get("/api/admin/logs/user", dependencies=[Depends(require_admin)])
 async def api_admin_user_logs(limit: int = Query(50, ge=1, le=500), filter: Optional[str] = None):
     """사용자 활동 로그 조회"""
     try:
@@ -401,7 +486,7 @@ async def api_admin_user_logs(limit: int = Query(50, ge=1, le=500), filter: Opti
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/admin/logs/service")
+@app.get("/api/admin/logs/service", dependencies=[Depends(require_admin)])
 async def api_admin_service_logs(limit: int = Query(50, ge=1, le=500), status: Optional[str] = None):
     """웹 서비스 작동 로그 조회"""
     try:
@@ -410,7 +495,7 @@ async def api_admin_service_logs(limit: int = Query(50, ge=1, le=500), status: O
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/admin/popular-policies")
+@app.get("/api/admin/popular-policies", dependencies=[Depends(require_admin)])
 async def api_admin_popular_policies(limit: int = Query(30, ge=1, le=100)):
     """많이 찾는 정책 데이터 및 랭킹 조회"""
     try:
@@ -418,6 +503,15 @@ async def api_admin_popular_policies(limit: int = Query(30, ge=1, le=100)):
         return JSONResponse(content={"status": "success", "data": policies})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/admin/users", dependencies=[Depends(require_admin)])
+async def api_admin_users(limit: int = Query(100, ge=1, le=500)):
+    """가입된 전체 회원 목록 및 역할 DB 조회"""
+    try:
+        users = admin_service.get_all_users(limit=limit)
+        return JSONResponse(content={"status": "success", "data": users})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"회원 목록 조회 오류: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

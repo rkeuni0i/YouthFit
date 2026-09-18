@@ -57,6 +57,30 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error("Failed to parse diagnosis result:", e);
   }
 
+  // If admin lands on user dashboard, show convenient admin portal quick-jump banner
+  if (isMember) {
+    const uRole = (loggedInUser.role || '').toLowerCase();
+    const uEmail = (loggedInUser.email || '').toLowerCase();
+    const isAdmin = uRole === 'admin' || uEmail === 'admin@youthfit.kr' || uEmail.startsWith('admin@') || uEmail === 'admin';
+    if (isAdmin) {
+      const banner = document.createElement('div');
+      banner.id = 'admin-dashboard-notice';
+      banner.className = 'bg-primary text-on-primary px-4 py-2.5 text-xs font-bold flex items-center justify-between shadow-md sticky top-16 z-50';
+      banner.innerHTML = `
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">admin_panel_settings</span>
+          <span>현재 최고 관리자 계정(${loggedInUser.email})으로 접속 중입니다.</span>
+        </span>
+        <a href="admin.html" class="px-3 py-1 bg-surface-container-lowest text-primary rounded-lg text-xs font-bold hover:bg-surface-container transition-colors inline-flex items-center gap-1 shadow-sm">
+          <span>관리자 포털 바로가기</span>
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </a>
+      `;
+      const mainContent = document.querySelector('.pl-0.md\\:pl-64') || document.body;
+      mainContent.prepend(banner);
+    }
+  }
+
   // If no result found, attempt fallback diagnosis
   if (!result) {
     let profile = { age: 24, district: '관악구', jobStatus: 'jobseeker', household: 'single', income: 'income60' };

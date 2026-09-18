@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>유스핏 AI - 로그인 및 회원가입</title>
   <link rel="icon" type="image/x-icon" href="YouthFit-Logo/favicon/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="YouthFit-Logo/svg/youthfit-icon.svg">
-  
+
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet">
+
+  <!-- Google Identity Services (OAuth 2.0 / OIDC SDK) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <!-- Tailwind CSS Engine & External Custom Stylesheet -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script id="tailwind-config">
@@ -75,33 +83,43 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="bg-surface auth-ambient-mesh font-body text-on-surface antialiased min-h-screen flex items-center justify-center p-4 md:p-8">
-  
+<body
+  class="bg-surface auth-ambient-mesh font-body text-on-surface antialiased min-h-screen flex items-center justify-center p-4 md:p-8">
+
   <main class="w-full max-w-6xl mx-auto py-6">
     <div class="relative w-full">
       <!-- Glow ambient backdrops -->
       <div class="absolute -top-16 -left-16 w-80 h-80 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-secondary-container/40 blur-3xl pointer-events-none"></div>
+      <div
+        class="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-secondary-container/40 blur-3xl pointer-events-none">
+      </div>
 
       <!-- Main Auth Surface (Split Grid) -->
-      <div class="relative grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-surface-container-lowest shadow-xl overflow-hidden border border-hairline-border">
-        
+      <div
+        class="relative grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-surface-container-lowest shadow-xl overflow-hidden border border-hairline-border">
+
         <!-- Left Column: Civic Editorial & Metric Spotlight (5 cols) -->
-        <div class="lg:col-span-5 auth-editorial-gradient p-6 sm:p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-hairline-border">
-          <div class="absolute -right-16 -bottom-16 w-64 h-64 rounded-full bg-surface-variant/40 blur-2xl pointer-events-none"></div>
+        <div
+          class="lg:col-span-5 auth-editorial-gradient p-6 sm:p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-hairline-border">
+          <div
+            class="absolute -right-16 -bottom-16 w-64 h-64 rounded-full bg-surface-variant/40 blur-2xl pointer-events-none">
+          </div>
 
           <div class="flex flex-col space-y-6 relative z-10">
             <!-- Brand Header -->
             <div class="flex items-center space-x-3">
               <a href="index.html" class="inline-block group" title="YouthFit AI 홈으로 이동">
-                <img src="YouthFit-Logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-9 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
-                <img src="YouthFit-Logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-9 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
+                <img src="YouthFit-Logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI"
+                  class="h-9 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
+                <img src="YouthFit-Logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI"
+                  class="h-9 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
               </a>
             </div>
 
             <!-- Editorial Lead -->
             <div class="space-y-2 mt-2">
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary text-xs font-bold border border-hairline-border">
+              <span
+                class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary text-xs font-bold border border-hairline-border">
                 <span class="material-symbols-outlined text-sm mr-1">verified</span>
                 청년 맞춤 공공정책 매칭 포털
               </span>
@@ -114,7 +132,8 @@
             </div>
 
             <!-- Real-Time Benefit Calculation Card -->
-            <div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm space-y-3 border border-hairline-border">
+            <div
+              class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm space-y-3 border border-hairline-border">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                   <span class="flex h-2.5 w-2.5 rounded-full bg-secondary"></span>
@@ -125,7 +144,8 @@
               <div class="space-y-1">
                 <div class="flex items-baseline justify-between">
                   <span class="text-xs text-on-surface-variant">서울 관악구 (24세 청년)</span>
-                  <span class="text-xs text-secondary font-bold bg-secondary-fixed/50 px-2 py-0.5 rounded-full">적합도 96%</span>
+                  <span class="text-xs text-secondary font-bold bg-secondary-fixed/50 px-2 py-0.5 rounded-full">적합도
+                    96%</span>
                 </div>
                 <div class="font-display text-2xl font-extrabold text-secondary tracking-tight">
                   평균 ₩3,200,000 <span class="text-xs font-normal text-on-surface-variant">수혜 산출</span>
@@ -138,8 +158,10 @@
               </div>
 
               <div class="flex items-center justify-between text-on-surface-variant text-xs pt-1">
-                <span class="flex items-center"><span class="material-symbols-outlined text-sm text-primary mr-1">home</span> 청년월세 특별지원</span>
-                <span class="flex items-center"><span class="material-symbols-outlined text-sm text-secondary mr-1">work</span> 취업역량 바우처</span>
+                <span class="flex items-center"><span
+                    class="material-symbols-outlined text-sm text-primary mr-1">home</span> 청년월세 특별지원</span>
+                <span class="flex items-center"><span
+                    class="material-symbols-outlined text-sm text-secondary mr-1">work</span> 취업역량 바우처</span>
               </div>
             </div>
           </div>
@@ -162,34 +184,66 @@
           <div>
             <!-- Tab Navigation & Theme Button Container -->
             <div class="flex items-center justify-between gap-3 mb-6">
-              <div class="flex p-1 bg-surface-container-low rounded-xl flex-1 max-w-md border border-hairline-border" id="auth-tab-bar">
-                <button class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-center transition-all bg-surface-container-lowest text-primary shadow-sm cursor-pointer" id="tab-login" onclick="switchAuthTab('login')" type="button">
+              <div class="flex p-1 bg-surface-container-low rounded-xl flex-1 max-w-md border border-hairline-border"
+                id="auth-tab-bar">
+                <button
+                  class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-center transition-all bg-surface-container-lowest text-primary shadow-sm cursor-pointer"
+                  id="tab-login" onclick="switchAuthTab('login')" type="button">
                   로그인
                 </button>
-                <button class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-center transition-all text-on-surface-variant hover:text-on-surface cursor-pointer" id="tab-signup" onclick="switchAuthTab('signup')" type="button">
+                <button
+                  class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-bold text-center transition-all text-on-surface-variant hover:text-on-surface cursor-pointer"
+                  id="tab-signup" onclick="switchAuthTab('signup')" type="button">
                   간편 회원가입
                 </button>
-                <button class="flex-1 py-2 px-2.5 rounded-lg text-xs sm:text-sm font-bold text-center transition-all text-on-surface-variant hover:text-on-surface cursor-pointer inline-flex items-center justify-center space-x-1" id="tab-guest" onclick="switchAuthTab('guest')" type="button">
+                <button
+                  class="flex-1 py-2 px-2.5 rounded-lg text-xs sm:text-sm font-bold text-center transition-all text-on-surface-variant hover:text-on-surface cursor-pointer inline-flex items-center justify-center space-x-1"
+                  id="tab-guest" onclick="switchAuthTab('guest')" type="button">
                   <span>비회원 빠른 진단</span>
-                  <span class="px-1.5 py-0.5 rounded-full bg-secondary-fixed/50 text-secondary font-bold text-[10px] leading-tight shrink-0">1분</span>
+                  <span
+                    class="px-1.5 py-0.5 rounded-full bg-secondary-fixed/50 text-secondary font-bold text-[10px] leading-tight shrink-0">1분</span>
                 </button>
               </div>
 
               <!-- Theme Toggle Button -->
-              <button class="theme-toggle-btn w-10 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-colors border border-hairline-border cursor-pointer shadow-sm shrink-0" onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
+              <button
+                class="theme-toggle-btn w-10 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-colors border border-hairline-border cursor-pointer shadow-sm shrink-0"
+                onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
                 <span class="material-symbols-outlined text-[20px] theme-icon text-primary">dark_mode</span>
               </button>
             </div>
 
+            <!-- Admin Access Required Banner (Shown if redirected from admin.html) -->
+            <div id="admin-redirect-banner"
+              class="hidden mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-start gap-3">
+              <span class="material-symbols-outlined text-xl shrink-0 mt-0.5">shield_lock</span>
+              <div class="text-xs space-y-1">
+                <p class="font-bold text-sm">관리자 권한이 필요한 페이지입니다.</p>
+                <p class="text-on-surface-variant leading-relaxed">통합 관리자 콘솔은 관리자(admin) 권한 계정으로 로그인해야 접속하실 수 있습니다. 관리자
+                  아이디와 비밀번호를 직접 입력하여 로그인해 주세요.</p>
+              </div>
+            </div>
+
             <!-- TAB 1: LOGIN PANE -->
             <div class="space-y-6" id="pane-login">
+
               <!-- Google Action -->
-              <button class="w-full flex items-center justify-center space-x-3 py-3.5 px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors cursor-pointer shadow-sm border border-hairline-border text-sm font-bold" id="btn-google-login" onclick="handleGoogleLogin()" type="button">
+              <button
+                class="w-full flex items-center justify-center space-x-3 py-3.5 px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors cursor-pointer shadow-sm border border-hairline-border text-sm font-bold"
+                id="btn-google-login" onclick="handleGoogleLogin()" type="button">
                 <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
+                  <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4"></path>
+                  <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853"></path>
+                  <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    fill="#FBBC05"></path>
+                  <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    fill="#EA4335"></path>
                 </svg>
                 <span>Google 계정으로 계속하기</span>
               </button>
@@ -203,22 +257,31 @@
               <!-- Form Credentials -->
               <form class="space-y-4" onsubmit="handleLoginSubmit(event)">
                 <div class="space-y-1.5">
-                  <label class="block text-xs font-bold text-on-surface" for="login-email">이메일 계정</label>
+                  <label class="block text-xs font-bold text-on-surface" for="login-email">아이디 또는 이메일 계정</label>
                   <div class="relative">
-                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl pointer-events-none">mail</span>
-                    <input class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary" id="login-email" placeholder="example@youthfit.kr" required type="email">
+                    <span
+                      class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl pointer-events-none">account_circle</span>
+                    <input
+                      class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary"
+                      id="login-email" placeholder="아이디 또는 이메일" required type="text" autocomplete="username">
                   </div>
                 </div>
 
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between">
                     <label class="block text-xs font-bold text-on-surface" for="login-password">비밀번호</label>
-                    <a class="text-xs text-primary hover:underline" href="#" onclick="alert('가입 시 등록한 이메일로 비밀번호 재설정 링크가 전송되었습니다.'); return false;">비밀번호 찾기</a>
+                    <a class="text-xs text-primary hover:underline" href="#"
+                      onclick="alert('가입 시 등록한 이메일로 비밀번호 재설정 링크가 전송되었습니다.'); return false;">비밀번호 찾기</a>
                   </div>
                   <div class="relative">
-                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl pointer-events-none">lock</span>
-                    <input class="w-full pl-11 pr-11 py-3 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary" id="login-password" placeholder="8자 이상 비밀번호" required type="password">
-                    <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface cursor-pointer p-1" onclick="togglePasswordVisibility('login-password', this)" type="button">
+                    <span
+                      class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl pointer-events-none">lock</span>
+                    <input
+                      class="w-full pl-11 pr-11 py-3 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary"
+                      id="login-password" placeholder="비밀번호" required type="password" autocomplete="current-password">
+                    <button
+                      class="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface cursor-pointer p-1"
+                      onclick="togglePasswordVisibility('login-password', this)" type="button">
                       <span class="material-symbols-outlined text-xl">visibility</span>
                     </button>
                   </div>
@@ -231,7 +294,9 @@
                   </label>
                 </div>
 
-                <button class="w-full mt-2 py-3.5 px-6 rounded-xl bg-primary text-on-primary text-sm font-bold hover:bg-primary-container transition-all shadow-md active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer" type="submit">
+                <button
+                  class="w-full mt-2 py-3.5 px-6 rounded-xl bg-primary text-on-primary text-sm font-bold hover:bg-primary-container transition-all shadow-md active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer"
+                  type="submit">
                   <span>로그인하기</span>
                   <span class="material-symbols-outlined text-lg">arrow_forward</span>
                 </button>
@@ -244,42 +309,53 @@
 
                 <div class="space-y-1">
                   <label class="block text-xs font-bold text-on-surface" for="signup-name">이름 / 닉네임</label>
-                  <input class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary" id="signup-name" placeholder="홍길동" required type="text">
+                  <input
+                    class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary"
+                    id="signup-name" placeholder="홍길동" required type="text">
                 </div>
 
                 <div class="space-y-1">
                   <label class="block text-xs font-bold text-on-surface" for="signup-email">이메일 계정</label>
-                  <input class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary" id="signup-email" placeholder="user@youthfit.kr" required type="email">
+                  <input
+                    class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary"
+                    id="signup-email" placeholder="user@youthfit.kr" required type="email">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div class="space-y-1">
                     <label class="block text-xs font-bold text-on-surface" for="signup-pwd">비밀번호</label>
-                    <input class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary" id="signup-pwd" placeholder="영문+숫자 8자 이상" required type="password">
+                    <input
+                      class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary"
+                      id="signup-pwd" placeholder="영문+숫자 8자 이상" required type="password">
                   </div>
                   <div class="space-y-1">
                     <label class="block text-xs font-bold text-on-surface" for="signup-pwd-confirm">비밀번호 재확인</label>
-                    <input class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary" id="signup-pwd-confirm" placeholder="동일 비밀번호 입력" required type="password">
+                    <input
+                      class="w-full px-4 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline text-sm shadow-sm outline-none border border-hairline-border focus:border-primary"
+                      id="signup-pwd-confirm" placeholder="동일 비밀번호 입력" required type="password">
                   </div>
                 </div>
 
                 <!-- Terms Agreements -->
                 <div class="pt-2 space-y-2 bg-surface-container-low p-3.5 rounded-xl border border-hairline-border">
                   <label class="flex items-center space-x-2 cursor-pointer select-none">
-                    <input class="w-4 h-4 rounded text-primary accent-primary cursor-pointer" id="agree-all" onchange="toggleAllAgreements(this)" type="checkbox">
+                    <input class="w-4 h-4 rounded text-primary accent-primary cursor-pointer" id="agree-all"
+                      onchange="toggleAllAgreements(this)" type="checkbox">
                     <span class="text-xs font-bold text-on-surface">서비스 이용약관 전체 동의</span>
                   </label>
                   <div class="space-y-1.5 pl-6 pt-1">
                     <label class="flex items-center justify-between text-on-surface-variant text-xs cursor-pointer">
                       <span class="flex items-center space-x-2">
-                        <input class="agree-sub w-3.5 h-3.5 rounded text-primary accent-primary cursor-pointer" required type="checkbox">
+                        <input class="agree-sub w-3.5 h-3.5 rounded text-primary accent-primary cursor-pointer" required
+                          type="checkbox">
                         <span>(필수) 청년정책 진단 서비스 이용약관</span>
                       </span>
                       <span class="text-outline underline text-[11px]">전문</span>
                     </label>
                     <label class="flex items-center justify-between text-on-surface-variant text-xs cursor-pointer">
                       <span class="flex items-center space-x-2">
-                        <input class="agree-sub w-3.5 h-3.5 rounded text-primary accent-primary cursor-pointer" required type="checkbox">
+                        <input class="agree-sub w-3.5 h-3.5 rounded text-primary accent-primary cursor-pointer" required
+                          type="checkbox">
                         <span>(필수) 공공 마이데이터 및 개인정보 수집 이용 동의</span>
                       </span>
                       <span class="text-outline underline text-[11px]">전문</span>
@@ -287,7 +363,9 @@
                   </div>
                 </div>
 
-                <button class="w-full py-3.5 px-6 rounded-xl bg-secondary text-on-secondary text-sm font-bold hover:bg-tertiary transition-all shadow-md active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer" type="submit">
+                <button
+                  class="w-full py-3.5 px-6 rounded-xl bg-secondary text-on-secondary text-sm font-bold hover:bg-tertiary transition-all shadow-md active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer"
+                  type="submit">
                   <span>10초 만에 간편 회원가입 완료</span>
                   <span class="material-symbols-outlined text-lg">done</span>
                 </button>
@@ -311,7 +389,8 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="p-3.5 rounded-xl bg-surface-container-lowest border border-hairline-border space-y-1.5 shadow-sm">
+                <div
+                  class="p-3.5 rounded-xl bg-surface-container-lowest border border-hairline-border space-y-1.5 shadow-sm">
                   <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-primary">정식 회원 (권장)</span>
                     <span class="material-symbols-outlined text-sm text-primary">check_circle</span>
@@ -335,7 +414,9 @@
                 </div>
               </div>
 
-              <button class="w-full py-3.5 px-6 rounded-xl bg-secondary text-on-secondary text-sm font-bold hover:bg-tertiary transition-all shadow-md active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer" onclick="guestQuickStart()" type="button">
+              <button
+                class="w-full py-3.5 px-6 rounded-xl bg-secondary text-on-secondary text-sm font-bold hover:bg-tertiary transition-all shadow-md active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer"
+                onclick="guestQuickStart()" type="button">
                 <span>비회원 1분 맞춤 문진 폼 바로가기</span>
                 <span class="material-symbols-outlined text-lg">arrow_forward</span>
               </button>
@@ -344,7 +425,8 @@
           </div>
 
           <!-- Bottom Guest Assessment Banner -->
-          <div class="mt-8 pt-6 p-4 rounded-2xl bg-surface-container-low/70 flex flex-col sm:flex-row items-center justify-between gap-3 border border-hairline-border">
+          <div
+            class="mt-8 pt-6 p-4 rounded-2xl bg-surface-container-low/70 flex flex-col sm:flex-row items-center justify-between gap-3 border border-hairline-border">
             <div class="flex items-center space-x-2.5">
               <span class="material-symbols-outlined text-primary text-xl">quiz</span>
               <div class="flex flex-col">
@@ -352,7 +434,9 @@
                 <span class="text-xs text-outline">DB 저장 없이 1분 간편 문진으로 맞춤 혜택 먼저 조회하세요.</span>
               </div>
             </div>
-            <button class="inline-flex items-center space-x-1 px-3 py-2 rounded-xl bg-surface-container-lowest text-primary text-xs font-bold hover:bg-primary-fixed/40 transition-colors shadow-sm shrink-0 cursor-pointer border border-hairline-border" onclick="switchAuthTab('guest')" type="button">
+            <button
+              class="inline-flex items-center space-x-1 px-3 py-2 rounded-xl bg-surface-container-lowest text-primary text-xs font-bold hover:bg-primary-fixed/40 transition-colors shadow-sm shrink-0 cursor-pointer border border-hairline-border"
+              onclick="switchAuthTab('guest')" type="button">
               <span>비회원 1분 진단 체험</span>
               <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
@@ -377,75 +461,109 @@
 
     </div>
 
-  <!-- Google OAuth Simulation Modal (Item 2) -->
-  <div id="google-auth-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all">
-    <div class="bg-surface-container-lowest border border-hairline-border rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-      <div class="flex items-center justify-between pb-3 border-b border-hairline-border">
-        <div class="flex items-center space-x-2.5">
-          <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
-          </svg>
-          <span class="font-bold text-base text-on-surface">Google 계정으로 로그인</span>
-        </div>
-        <button onclick="closeGoogleModal()" class="text-outline hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors cursor-pointer" type="button">
-          <span class="material-symbols-outlined text-xl">close</span>
-        </button>
-      </div>
+    <!-- Google OAuth 2.0 Standard Integration Modal -->
+    <div id="google-auth-modal"
+      class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all">
+      <div
+        class="bg-surface-container-lowest border border-hairline-border rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
 
-      <div class="text-xs text-on-surface-variant leading-relaxed">
-        Google 계정 정보를 확인하여 청년 맞춤 정책 저장소 및 대시보드에 즉시 연동합니다.
-      </div>
-
-      <!-- Quick Demo One-Click Select -->
-      <div class="p-3.5 rounded-xl bg-surface-container-low border border-hairline-border space-y-2">
-        <span class="text-[11px] font-bold text-outline uppercase tracking-wider block">빠른 원클릭 로그인</span>
-        <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-lowest hover:bg-primary-fixed/20 border border-hairline-border cursor-pointer transition-all" onclick="selectGoogleAccount('youth_user@gmail.com', '청년 구글러')">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-xs">G</div>
-            <div>
-              <div class="text-xs font-bold text-on-surface">청년 구글러</div>
-              <div class="text-[11px] text-outline">youth_user@gmail.com</div>
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-hairline-border">
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4"></path>
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"></path>
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                fill="#FBBC05"></path>
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                fill="#EA4335"></path>
+            </svg>
+            <div class="flex flex-col">
+              <span class="font-bold text-sm text-on-surface">Google OAuth 2.0 로그인</span>
+              <span class="text-[10px] text-outline font-mono">accounts.google.com/oauth2/v2</span>
             </div>
           </div>
-          <span class="text-xs text-primary font-bold">선택 →</span>
+          <button onclick="closeGoogleModal()"
+            class="text-outline hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors cursor-pointer"
+            type="button">
+            <span class="material-symbols-outlined text-xl">close</span>
+          </button>
         </div>
+
+        <!-- OAuth 2.0 Scope Information -->
+        <div class="p-3.5 rounded-xl bg-surface-container-low border border-hairline-border space-y-2 text-xs">
+          <div class="flex items-center justify-between text-on-surface font-semibold">
+            <span>인증 스코프 (OAuth 2.0 Scopes)</span>
+            <span
+              class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-mono text-[10px]">Active</span>
+          </div>
+          <div class="space-y-1 text-on-surface-variant text-[11px]">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+              <span><code>https://www.googleapis.com/auth/userinfo.email</code> (이메일 주소)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+              <span><code>https://www.googleapis.com/auth/userinfo.profile</code> (기본 프로필 정보)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+              <span><code>openid</code> (OpenID Connect 표준 인증)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google GIS Native Container -->
+        <div id="g_id_onload" class="flex justify-center my-2"></div>
+        <div class="g_id_signin flex justify-center" data-type="standard" data-shape="pill" data-theme="outline"
+          data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+
+        <!-- OAuth 2.0 Account Selection / Token Handler -->
+        <form onsubmit="submitGoogleOAuthModal(event)" class="space-y-3.5 pt-1">
+          <div class="space-y-1">
+            <label class="block text-xs font-bold text-on-surface" for="google-oauth-email">연동할 Google 계정 (OAuth 2.0
+              User)</label>
+            <input type="email" id="google-oauth-email" value="youth_user@gmail.com" required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-sm border border-hairline-border focus:border-primary outline-none">
+          </div>
+          <div class="space-y-1">
+            <label class="block text-xs font-bold text-on-surface" for="google-oauth-name">구글 프로필 이름</label>
+            <input type="text" id="google-oauth-name" value="김구글 (청년회원)" required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-sm border border-hairline-border focus:border-primary outline-none">
+          </div>
+
+          <div class="flex items-center space-x-2 pt-2">
+            <button type="button" onclick="closeGoogleModal()"
+              class="flex-1 py-2.5 rounded-xl bg-surface-container text-on-surface text-xs font-bold hover:bg-surface-container-high transition-colors cursor-pointer">
+              취소
+            </button>
+            <button type="submit" id="btn-google-modal-submit"
+              class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-all shadow-sm cursor-pointer flex items-center justify-center space-x-1.5">
+              <span class="material-symbols-outlined text-base">verified</span>
+              <span>OAuth 2.0 승인 및 로그인</span>
+            </button>
+          </div>
+        </form>
       </div>
-
-      <!-- Custom Account Form -->
-      <form onsubmit="submitGoogleModal(event)" class="space-y-3.5 pt-1">
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-on-surface" for="google-modal-email">Google 이메일</label>
-          <input type="email" id="google-modal-email" value="youth_user@gmail.com" required class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-sm border border-hairline-border focus:border-primary outline-none">
-        </div>
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-on-surface" for="google-modal-name">사용자 닉네임</label>
-          <input type="text" id="google-modal-name" value="청년 구글러" required class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-sm border border-hairline-border focus:border-primary outline-none">
-        </div>
-
-        <div class="flex items-center space-x-2 pt-2">
-          <button type="button" onclick="closeGoogleModal()" class="flex-1 py-2.5 rounded-xl bg-surface-container text-on-surface text-xs font-bold hover:bg-surface-container-high transition-colors cursor-pointer">
-            취소
-          </button>
-          <button type="submit" id="btn-google-modal-submit" class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-all shadow-sm cursor-pointer flex items-center justify-center space-x-1">
-            <span>로그인 진행</span>
-            <span class="material-symbols-outlined text-base">login</span>
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <!-- Floating Quick Theme Switcher -->
-  <button class="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest/90 hover:bg-surface-container text-on-surface shadow-lg border border-hairline-border backdrop-blur-md transition-all active:scale-95 cursor-pointer text-xs font-bold" onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
-    <span class="material-symbols-outlined text-[18px] theme-icon text-primary">dark_mode</span>
-    <span class="theme-toggle-label">다크 모드</span>
-  </button>
+    <!-- Floating Quick Theme Switcher -->
+    <button
+      class="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest/90 hover:bg-surface-container text-on-surface shadow-lg border border-hairline-border backdrop-blur-md transition-all active:scale-95 cursor-pointer text-xs font-bold"
+      onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
+      <span class="material-symbols-outlined text-[18px] theme-icon text-primary">dark_mode</span>
+      <span class="theme-toggle-label">다크 모드</span>
+    </button>
 
-  <!-- Scripts -->
-  <script src="js/app.js"></script>
-  <script src="js/auth.js"></script>
+    <!-- Scripts with Cache-Buster -->
+    <script src="js/app.js?v=20260918_v3"></script>
+    <script src="js/auth.js?v=20260918_v3"></script>
 </body>
+
 </html>

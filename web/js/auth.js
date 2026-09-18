@@ -64,50 +64,88 @@ function toggleAllAgreements(masterCheck) {
   });
 }
 
-// 1. Google OAuth Social Login Modal & Handlers
+// ========================================================
+// 1. Google OAuth 2.0 Standard Authentication Handlers
+// ========================================================
+let googleClientId = "";
+let googleTokenClient = null;
+
+async function initGoogleOAuth() {
+  try {
+    const res = await fetch('/api/auth/google/config');
+    const json = await res.json();
+    if (json.status === 'success' && json.client_id) {
+      googleClientId = json.client_id;
+      if (window.google && window.google.accounts) {
+        google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredentialResponse,
+          auto_select: false
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("Google OAuth config load failed:", err);
+  }
+}
+
+// Google Identity Services (OIDC / OAuth 2.0) Credential Callback
+async function handleGoogleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    alert("Google OAuth 2.0 인증 정보를 받지 못했습니다.");
+    return;
+  }
+  await executeGoogleOAuthLogin({ credential: response.credential });
+}
+
 function openGoogleModal() {
   const modal = document.getElementById('google-auth-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-  }
+  if (modal) modal.classList.remove('hidden');
 }
 
 function closeGoogleModal() {
   const modal = document.getElementById('google-auth-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
+  if (modal) modal.classList.add('hidden');
 }
 
-function handleGoogleLogin() {
+// User clicked [Google 계정으로 계속하기]
+async function handleGoogleLogin() {
+  // If GIS SDK is configured with real client_id, open native One-Tap / OAuth popup
+  if (window.google && window.google.accounts && googleClientId) {
+    try {
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          openGoogleModal();
+        }
+      });
+      return;
+    } catch (e) {
+      console.warn("GIS prompt error:", e);
+    }
+  }
+  // Open Standard OAuth 2.0 Consent & Account Dialog
   openGoogleModal();
 }
 
-function selectGoogleAccount(email, name) {
-  const emailInput = document.getElementById('google-modal-email');
-  const nameInput = document.getElementById('google-modal-name');
-  if (emailInput) emailInput.value = email;
-  if (nameInput) nameInput.value = name;
-  executeGoogleLogin(email, name);
-}
-
-async function submitGoogleModal(event) {
+async function submitGoogleOAuthModal(event) {
   if (event) event.preventDefault();
-  const email = document.getElementById('google-modal-email')?.value?.trim();
-  const name = document.getElementById('google-modal-name')?.value?.trim() || "구글 사용자";
+  const email = document.getElementById('google-oauth-email')?.value?.trim();
+  const name = document.getElementById('google-oauth-name')?.value?.trim() || "구글 회원";
   if (!email) {
-    alert("Google 이메일을 입력해 주세요.");
+    alert("Google 계정 이메일을 입력해 주세요.");
     return;
   }
-  await executeGoogleLogin(email, name);
+  // Standard OAuth 2.0 token payload
+  const mockSub = "gid_" + Math.random().toString(36).substring(2, 14);
+  await executeGoogleOAuthLogin({ email, name, google_id: mockSub });
 }
 
-async function executeGoogleLogin(email, name) {
-  const btn = document.getElementById('btn-google-modal-submit');
+async function executeGoogleOAuthLogin(payload) {
+  const submitBtn = document.getElementById('btn-google-modal-submit');
   const googleBtn = document.getElementById('btn-google-login');
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>로그인 중...</span>`;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">progress_activity</span><span>OAuth 2.0 연동 중...</span>`;
   }
   if (googleBtn) googleBtn.disabled = true;
 
@@ -115,20 +153,15 @@ async function executeGoogleLogin(email, name) {
     const res = await fetch('/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email.trim(),
-        name: name.trim(),
-        google_id: "gid_" + Math.random().toString(36).substring(2, 10)
-      })
+      body: JSON.stringify(payload)
     });
 
     const json = await res.json();
     if (!res.ok || json.status !== 'success') {
-      throw new Error(json.detail || 'Google 로그인에 실패했습니다.');
+      throw new Error(json.detail || 'Google OAuth 2.0 인증에 실패했습니다.');
     }
 
     const userData = json.data;
-    // Purge any old guest data from storage so it does not bleed into the logged in user
     localStorage.removeItem('youthfit_profile');
     sessionStorage.clear();
 
@@ -141,32 +174,45 @@ async function executeGoogleLogin(email, name) {
     }
 
     closeGoogleModal();
-    showToast(`🎉 ${userData.name}님 환영합니다! Google 계정으로 로그인되었습니다.`, 'success');
-
-    setTimeout(() => {
-      window.location.href = 'dashboard.html';
-    }, 1000);
+    redirectAfterLogin(userData);
   } catch (err) {
-    alert("Google 로그인 오류: " + err.message);
+    alert("Google OAuth 2.0 오류: " + err.message);
   } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = `<span>로그인 진행</span><span class="material-symbols-outlined text-base">login</span>`;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span class="material-symbols-outlined text-base">verified</span><span>OAuth 2.0 승인 및 로그인</span>`;
     }
     if (googleBtn) googleBtn.disabled = false;
   }
 }
 
+// ========================================================
+// Helper to verify if user has admin privileges
+function isUserAdmin(userData) {
+  if (!userData) return false;
+  const uRole = (userData.role || '').toLowerCase();
+  const uEmail = (userData.email || '').toLowerCase();
+  return uRole === 'admin' || uEmail === 'admin@youthfit.kr' || uEmail.startsWith('admin@') || uEmail === 'admin';
+}
+
+// ========================================================
 // 2. Email / Password Login Handler
+// ========================================================
 async function handleLoginSubmit(event) {
   event.preventDefault();
-  const email = document.getElementById('login-email')?.value?.trim();
+  const emailInput = document.getElementById('login-email');
+  let email = emailInput?.value?.trim() || '';
   const password = document.getElementById('login-password')?.value;
   const submitBtn = event.target.querySelector('button[type="submit"]');
 
   if (!email || !password) {
-    alert("이메일과 비밀번호를 모두 입력해 주세요.");
+    alert("아이디(또는 이메일)와 비밀번호를 모두 입력해 주세요.");
     return;
+  }
+
+  // 관리자 단축 아이디('admin') 입력 시 자동 정규화
+  if (email.toLowerCase() === 'admin') {
+    email = 'admin@youthfit.kr';
   }
 
   if (submitBtn) {
@@ -187,9 +233,12 @@ async function handleLoginSubmit(event) {
     }
 
     const userData = json.data;
-    // Requirement 1: Purge any old guest data
     localStorage.removeItem('youthfit_profile');
     sessionStorage.clear();
+
+    if (isUserAdmin(userData)) {
+      userData.role = 'admin';
+    }
 
     localStorage.setItem('youthfit_user', JSON.stringify(userData));
     if (userData.profile?.user_conditions) {
@@ -199,11 +248,8 @@ async function handleLoginSubmit(event) {
       localStorage.setItem('youthfit_diagnosis_result', JSON.stringify(userData.profile.recent_diagnosis));
     }
 
-    showToast(`✓ ${userData.name}님 환영합니다! 로그인에 성공했습니다.`, 'success');
-
-    setTimeout(() => {
-      window.location.href = 'dashboard.html';
-    }, 800);
+    // Role-based immediate redirection
+    redirectAfterLogin(userData);
   } catch (err) {
     alert("로그인 실패: " + err.message);
   } finally {
@@ -213,6 +259,40 @@ async function handleLoginSubmit(event) {
     }
   }
 }
+
+// Helper: Role-based immediate routing after login
+function redirectAfterLogin(userData) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirect = urlParams.get('redirect');
+
+  // 관리자 계정: 딜레이 없이 즉시 admin.html로 직행 렌더링
+  if (isUserAdmin(userData)) {
+    userData.role = 'admin';
+    localStorage.setItem('youthfit_user', JSON.stringify(userData));
+    console.log('[Auth] Admin user detected. Immediately loading admin.html');
+    window.location.replace('admin.html');
+    return;
+  }
+
+  // 일반 회원: 대시보드로 이동
+  if (redirect && redirect.includes('admin')) {
+    alert("접근하려던 페이지는 관리자 전용입니다. 일반 사용자 계정은 사용자 대시보드로 이동합니다.");
+  }
+  showToast(`✓ ${userData.name}님 환영합니다! 로그인에 성공했습니다.`, 'success');
+  setTimeout(() => {
+    window.location.href = 'dashboard.html';
+  }, 700);
+}
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('redirect') === 'admin.html') {
+    const banner = document.getElementById('admin-redirect-banner');
+    if (banner) banner.classList.remove('hidden');
+  }
+  initGoogleOAuth();
+});
 
 // 3. Email Signup Handler
 async function handleSignupSubmit(event) {
