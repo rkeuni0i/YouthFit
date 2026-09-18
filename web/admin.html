@@ -17,7 +17,17 @@
   <script>
     (function guardAdminPage() {
       try {
-        const raw = localStorage.getItem('youthfit_user');
+        let raw = sessionStorage.getItem('youthfit_user');
+        if (!raw) {
+          const localRaw = localStorage.getItem('youthfit_user');
+          if (localRaw) {
+            const parsed = JSON.parse(localRaw);
+            if (parsed && parsed.remember_expires && Date.now() <= parsed.remember_expires) {
+              raw = localRaw;
+              sessionStorage.setItem('youthfit_user', localRaw);
+            }
+          }
+        }
         if (!raw) {
           alert("관리자 권한이 필요한 페이지입니다. 관리자 계정으로 로그인해 주세요.");
           window.location.replace('auth.html?redirect=admin.html');
@@ -35,7 +45,7 @@
         }
         if (user.role !== 'admin') {
           user.role = 'admin';
-          localStorage.setItem('youthfit_user', JSON.stringify(user));
+          sessionStorage.setItem('youthfit_user', JSON.stringify(user));
         }
       } catch (e) {
         window.location.replace('auth.html?redirect=admin.html');
@@ -414,7 +424,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       // 1. 관리자 정보 표기
       try {
-        const u = JSON.parse(localStorage.getItem('youthfit_user') || '{}');
+        const raw = sessionStorage.getItem('youthfit_user') || localStorage.getItem('youthfit_user');
+        const u = JSON.parse(raw || '{}');
         if (u.email) {
           document.getElementById('admin-user-email').textContent = u.email;
         }
@@ -450,6 +461,7 @@
 
     function handleAdminLogout() {
       if (confirm("관리자 계정에서 로그아웃하시겠습니까?")) {
+        sessionStorage.removeItem('youthfit_user');
         localStorage.removeItem('youthfit_user');
         window.location.replace('auth.html');
       }
@@ -459,7 +471,8 @@
     async function fetchAdminApi(url) {
       let token = '';
       try {
-        const u = JSON.parse(localStorage.getItem('youthfit_user') || '{}');
+        const raw = sessionStorage.getItem('youthfit_user') || localStorage.getItem('youthfit_user');
+        const u = JSON.parse(raw || '{}');
         token = u.token || '';
       } catch (e) {}
 
@@ -472,6 +485,7 @@
 
       if (res.status === 401 || res.status === 403) {
         alert("관리자 세션이 만료되었거나 권한이 없습니다. 다시 로그인해 주세요.");
+        sessionStorage.removeItem('youthfit_user');
         localStorage.removeItem('youthfit_user');
         window.location.replace('auth.html?redirect=admin.html');
         return null;
