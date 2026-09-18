@@ -276,7 +276,7 @@ async function executeGoogleOAuthLogin(payload) {
     }
 
     closeGoogleModal();
-    redirectAfterLogin(userData);
+    redirectAfterLogin(userData, true);
   } catch (err) {
     alert("Google OAuth 2.0 오류: " + err.message);
   } finally {
@@ -371,7 +371,7 @@ async function handleLoginSubmit(event) {
 }
 
 // Helper: Role-based immediate routing after login
-function redirectAfterLogin(userData) {
+function redirectAfterLogin(userData, isGoogleLogin = false) {
   const urlParams = new URLSearchParams(window.location.search);
   const redirect = urlParams.get('redirect');
 
@@ -383,13 +383,18 @@ function redirectAfterLogin(userData) {
     return;
   }
 
-  // 일반 회원: 대시보드로 이동
+  // 일반 회원:
   if (redirect && redirect.includes('admin')) {
     alert("접근하려던 페이지는 관리자 전용입니다. 일반 사용자 계정은 사용자 대시보드로 이동합니다.");
   }
   showToast(`✓ ${userData.name}님 환영합니다! 로그인에 성공했습니다.`, 'success');
+
+  // 구글 계정 로그인 시: diagnosis.html(맞춤 진단 페이지)로 이동
+  const isGoogle = isGoogleLogin || userData?.provider === 'google';
+  const targetPage = isGoogle ? 'diagnosis.html' : (redirect || 'dashboard.html');
+
   setTimeout(() => {
-    window.location.href = 'dashboard.html';
+    window.location.href = targetPage;
   }, 700);
 }
 
