@@ -340,16 +340,17 @@ def get_admin_dashboard_data() -> Dict[str, Any]:
 
 def get_popular_policies(limit: int = 50) -> List[Dict[str, Any]]:
     """많이 찾는 정책 데이터 목록 조회"""
-    conn, _ = get_db_conn()
+    conn, db_type = get_db_conn()
     cur = conn.cursor()
     results = []
     try:
-        cur.execute("""
+        ph = "%s" if db_type == "postgresql" else "?"
+        cur.execute(f"""
             SELECT policy_id, policy_name, category, matches_count, views_count, clicks_count,
                    (matches_count * 1 + clicks_count * 3) AS score, last_accessed
             FROM policy_stats
             ORDER BY score DESC, matches_count DESC
-            LIMIT ?
+            LIMIT {ph}
         """, (limit,))
         rows = cur.fetchall()
         for r in rows:
@@ -370,22 +371,23 @@ def get_popular_policies(limit: int = 50) -> List[Dict[str, Any]]:
     return results
 
 def get_user_activity_logs(limit: int = 100, action_filter: Optional[str] = None) -> List[Dict[str, Any]]:
-    conn, _ = get_db_conn()
+    conn, db_type = get_db_conn()
     cur = conn.cursor()
     logs = []
     try:
+        ph = "%s" if db_type == "postgresql" else "?"
         if action_filter:
-            cur.execute("""
+            cur.execute(f"""
                 SELECT id, user_id, user_email, user_name, action, details, ip_address, created_at
                 FROM user_activity_logs
-                WHERE action LIKE ?
-                ORDER BY id DESC LIMIT ?
+                WHERE action LIKE {ph}
+                ORDER BY id DESC LIMIT {ph}
             """, (f"%{action_filter}%", limit))
         else:
-            cur.execute("""
+            cur.execute(f"""
                 SELECT id, user_id, user_email, user_name, action, details, ip_address, created_at
                 FROM user_activity_logs
-                ORDER BY id DESC LIMIT ?
+                ORDER BY id DESC LIMIT {ph}
             """, (limit,))
         rows = cur.fetchall()
         for r in rows:
@@ -406,29 +408,30 @@ def get_user_activity_logs(limit: int = 100, action_filter: Optional[str] = None
     return logs
 
 def get_service_operation_logs(limit: int = 100, status_filter: Optional[str] = None) -> List[Dict[str, Any]]:
-    conn, _ = get_db_conn()
+    conn, db_type = get_db_conn()
     cur = conn.cursor()
     logs = []
     try:
+        ph = "%s" if db_type == "postgresql" else "?"
         if status_filter == "error":
-            cur.execute("""
+            cur.execute(f"""
                 SELECT id, method, path, status_code, duration_ms, client_ip, error_msg, created_at
                 FROM service_logs
                 WHERE status_code >= 400
-                ORDER BY id DESC LIMIT ?
+                ORDER BY id DESC LIMIT {ph}
             """, (limit,))
         elif status_filter == "success":
-            cur.execute("""
+            cur.execute(f"""
                 SELECT id, method, path, status_code, duration_ms, client_ip, error_msg, created_at
                 FROM service_logs
                 WHERE status_code < 400
-                ORDER BY id DESC LIMIT ?
+                ORDER BY id DESC LIMIT {ph}
             """, (limit,))
         else:
-            cur.execute("""
+            cur.execute(f"""
                 SELECT id, method, path, status_code, duration_ms, client_ip, error_msg, created_at
                 FROM service_logs
-                ORDER BY id DESC LIMIT ?
+                ORDER BY id DESC LIMIT {ph}
             """, (limit,))
         rows = cur.fetchall()
         for r in rows:
@@ -447,3 +450,35 @@ def get_service_operation_logs(limit: int = 100, status_filter: Optional[str] = 
     finally:
         conn.close()
     return logs
+
+def get_all_users(limit: int = 100) -> List[Dict[str, Any]]:
+    """가입된 전체 회원 목록 및 역할 DB 조회"""
+    conn, db_type = get_db_conn()
+    cur = conn.cursor()
+    users = []
+    try:
+        query = """
+            SELECT id, email, name, role, provider, created_at, last_login_at 
+            FROM public.users ORDER BY id DESC LIMIT %s;
+        """ if db_type == "postgresql" else """
+            SELECT id, email, name, role, provider, created_at, last_login_at 
+            FROM users ORDER BY id DESC LIMIT ?;
+        """
+        cur.execute(query, (limit,))
+        rows = cur.fetchall()
+        for r in rows:
+            users.append({
+                "id": r[0],
+                "email": r[1],
+                "name": r[2],
+                "role": r[3] or "user",
+                "provider": r[4],
+                "created_at": str(r[5]),
+                "last_login_at": str(r[6])
+            })
+    except Exception as e:
+        print(f"[!] get_all_users error: {e}")
+    finally:
+        conn.close()
+    return users
+
