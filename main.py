@@ -8,8 +8,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 from scripts import db_connection
 from services.diagnosis_engine import diagnose_policies, get_all_policies
 from services import admin_service, auth_service
@@ -206,7 +208,8 @@ class UpdateProfileRequest(BaseModel):
 @app.get("/api/auth/google/config")
 async def api_google_config():
     """Google OAuth 2.0 클라이언트 ID 및 설정 반환"""
-    client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+    load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
+    client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
     return JSONResponse(content={
         "status": "success",
         "client_id": client_id,
