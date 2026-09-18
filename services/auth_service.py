@@ -445,3 +445,78 @@ def update_user_profile(user_id: int, profile_data: dict) -> bool:
         return True
     finally:
         conn.close()
+
+def update_user_account(
+    user_id: int,
+    name: str,
+    conditions: Optional[Dict[str, Any]] = None,
+    current_password: Optional[str] = None,
+    new_password: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    회원의 이름, 비밀번호, 맞춤 진단 조건(profile_json)을 DB에 저장/갱신합니다.
+    """
+    name = (name or "").strip()
+    if not name:
+        raise ValueError("이름(닉네임)을 입력해 주세요.")
+
+    conn, db_type = db_connection.get_connection(allow_sqlite_fallback=True)
+    cur = conn.cursor()
+    try:
+        query = (
+            "SELECT id, email, name, password_hash, role, provider, profile_json FROM public.users WHERE id = %s;"
+            if db_type == "postgresql"
+            else "SELECT id, email, name, password_hash, role, provider, profile_json FROM users WHERE id = ?;"
+        )
+        cur.execute(query, (user_id,))
+        row = cur.fetchone()
+        if not row:
+            raise ValueError("해당 사용자를 찾을 수 없습니다.")
+
+        uid, email, old_name, stored_hash, role, provider, profile_json = row
+
+        # 1. 비밀번호 변경 요청이 있는 경우
+        new_hash = stored_hash
+        if new_password:
+            if provider == "google":
+                raise ValueError("Google 소셜 계정은 비밀번호를 변경할 수 없습니다.")
+            if not current_password:
+                raise ValueError("현재 비밀번호를 입력해 주세요.")
+            if not verify_password(stored_hash, current_password):
+                raise ValueError("현재 비밀번호가 일치하지 않습니다.")
+            if len(new_password) < 6:
+                raise ValueError("새 비밀번호는 최소 6자리 이상이어야 합니다.")
+            new_hash = hash_password(new_password)
+
+        # 2. 맞춤 진단 조건(user_conditions) 반영
+        existing_profile = profile_json if isinstance(profile_json, dict) else {}
+        if isinstance(profile_json, str):
+            try:
+                existing_profile = json.loads(profile_json)
+            except Exception:
+                existing_profile = {}
+
+        if conditions is not None:
+            existing_profile["user_conditions"] = conditions
+
+        # 3. DB 업데이트
+        up_query = (
+            "UPDATE public.users SET name = %s, password_hash = %s, profile_json = %s WHERE id = %s;"
+            if db_type == "postgresql"
+            else "UPDATE users SET name = ?, password_hash = ?, profile_json = ? WHERE id = ?;"
+        )
+        cur.execute(up_query, (name, new_hash, json.dumps(existing_profile, ensure_ascii=False), user_id))
+        conn.commit()
+
+        return {
+            "id": uid,
+            "email": email,
+            "name": name,
+            "role": role or "user",
+            "provider": provider,
+            "profile": existing_profile,
+            "message": "회원 정보가 성공적으로 변경되었습니다."
+        }
+    finally:
+        conn.close()
+

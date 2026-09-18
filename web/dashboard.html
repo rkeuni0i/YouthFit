@@ -359,30 +359,30 @@
                 <div class="space-y-1">
                   <span class="text-xs text-on-surface-variant">서류 준비 진행률</span>
                   <div class="flex items-baseline gap-1">
-                    <span class="font-display text-2xl font-extrabold text-primary" id="progress-text">1</span>
-                    <span class="text-sm text-on-surface-variant">/ 3건 완료</span>
+                    <span class="font-display text-2xl font-extrabold text-primary" id="progress-text">0</span>
+                    <span class="text-sm text-on-surface-variant">/ <span id="progress-total">0</span>건 완료</span>
                   </div>
                 </div>
                 <!-- Clean SVG Radial Visual -->
                 <div class="relative w-14 h-14 flex items-center justify-center">
                   <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     <path class="text-surface-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
-                    <path class="text-secondary transition-all duration-300" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" id="progress-circle" stroke="currentColor" stroke-dasharray="33, 100" stroke-linecap="round" stroke-width="3.5"></path>
+                    <path class="text-secondary transition-all duration-300" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" id="progress-circle" stroke="currentColor" stroke-dasharray="0, 100" stroke-linecap="round" stroke-width="3.5"></path>
                   </svg>
-                  <span class="absolute text-xs font-bold text-on-surface" id="percent-label">33%</span>
+                  <span class="absolute text-xs font-bold text-on-surface" id="percent-label">0%</span>
                 </div>
               </div>
 
               <!-- Document Item List -->
               <div class="space-y-3" id="doc-list">
                 
-                <!-- Doc 1 (Checked) -->
+                <!-- Doc 1 -->
                 <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-surface hover:bg-surface-container transition-colors cursor-pointer border border-hairline-border">
-                  <input checked class="mt-1 w-4 h-4 rounded text-primary focus:ring-0 accent-primary cursor-pointer doc-item" data-id="1" type="checkbox">
+                  <input class="mt-1 w-4 h-4 rounded text-primary focus:ring-0 accent-primary cursor-pointer doc-item" data-id="1" type="checkbox">
                   <div class="flex-1 space-y-0.5">
                     <div class="flex items-center justify-between">
                       <span class="text-sm font-bold text-on-surface">주민등록표초본</span>
-                      <span class="doc-status-pill px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-semibold">준비 완료</span>
+                      <span class="doc-status-pill px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">미발급</span>
                     </div>
                     <p class="text-xs text-on-surface-variant">과거 5년간 주소변동사항 표기 필수</p>
                     <div class="pt-1">
@@ -556,7 +556,7 @@
   </div>
 
   <!-- Scripts with Cache-Buster -->
-  <script src="js/app.js?v=20260918_v6"></script>
-  <script src="js/dashboard.js?v=20260918_v6"></script>
+  <script src="js/app.js?v=20260918_v7"></script>
+  <script src="js/dashboard.js?v=20260918_v7"></script>
 </body>
 </html>

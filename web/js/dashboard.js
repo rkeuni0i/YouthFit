@@ -341,10 +341,27 @@ document.addEventListener('DOMContentLoaded', () => {
     policyContainer.innerHTML = headerHtml + cardsHtml;
   }
 
+  // Helper: Detect non-document notice / announcement text
+  function isNoticeItem(name) {
+    if (!name) return true;
+    const str = String(name).trim();
+    if (['⚠️', '🚨', '❗', '📢', '※', '☞', 'ㅇ'].some(em => str.includes(em))) return true;
+    if (['공고일', '인정 됩니다', '온라인 제출', '중요', '유의사항', '발급분만', '불인정', '주의사항', '대체 제출', '으로 발급', '로 발급'].some(kw => str.includes(kw))) return true;
+    if (str.endsWith(')') && ['제출', '업로드', '해당'].some(kw => str.includes(kw))) return true;
+    return false;
+  }
+
   // Helper: Render Document Checklist (1:1 Service Page Mapping)
   function renderChecklist(items) {
-    docList.innerHTML = items.map((doc, i) => {
-      const isChecked = i === 0; // First pre-checked
+    const validItems = (items || []).filter(doc => !isNoticeItem(doc.name) && !isNoticeItem(doc.clean_name));
+    if (!validItems || validItems.length === 0) {
+      docList.innerHTML = `<p class="p-4 text-xs text-on-surface-variant text-center">제출 필요 서류가 없습니다.</p>`;
+      updateChecklistProgress();
+      return;
+    }
+
+    docList.innerHTML = validItems.map((doc, i) => {
+      const isChecked = false; // Requirement: None checked by default
       const actionLabel = doc.action_label || '정부24 무료 즉시 발급';
       const linkHtml = doc.link 
         ? `<div class="pt-1">
@@ -357,12 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return `
         <label class="flex items-start gap-3.5 p-3.5 rounded-xl bg-surface hover:bg-surface-container transition-colors cursor-pointer border border-hairline-border">
-          <input ${isChecked ? 'checked' : ''} class="mt-1 w-4 h-4 rounded text-primary focus:ring-0 accent-primary cursor-pointer doc-item" data-id="${i}" type="checkbox">
+          <input class="mt-1 w-4 h-4 rounded text-primary focus:ring-0 accent-primary cursor-pointer doc-item" data-id="${i}" type="checkbox">
           <div class="flex-1 space-y-0.5">
             <div class="flex items-center justify-between">
               <span class="text-sm font-bold text-on-surface">${doc.name}</span>
-              <span class="doc-status-pill px-2 py-0.5 rounded-full ${isChecked ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-on-surface-variant'} text-xs font-semibold">
-                ${isChecked ? '준비 완료' : '미발급'}
+              <span class="doc-status-pill px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">
+                미발급
               </span>
             </div>
             ${linkHtml}
@@ -385,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateChecklistProgress() {
     const checkboxes = document.querySelectorAll('.doc-item');
-    const total = checkboxes.length || 1;
+    const total = checkboxes.length;
     let checkedCount = 0;
 
     checkboxes.forEach(cb => {
@@ -404,12 +421,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    const percent = Math.round((checkedCount / total) * 100);
+    const percent = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
 
     if (progressText) progressText.textContent = `${checkedCount}`;
+    const progressTotal = document.getElementById('progress-total');
+    if (progressTotal) progressTotal.textContent = `${total}`;
     if (percentLabel) percentLabel.textContent = `${percent}%`;
     if (progressCircle) {
       progressCircle.setAttribute('stroke-dasharray', `${percent}, 100`);
+    }
+
+    if (statDocsCount && total > 0) {
+      statDocsCount.textContent = `${total}건`;
     }
   }
 

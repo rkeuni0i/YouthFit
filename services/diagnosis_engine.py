@@ -1,7 +1,9 @@
+from __future__ import annotations
 import os
 import sys
 import json
 import re
+from typing import Optional, List, Dict, Any, Tuple
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -118,9 +120,84 @@ def parse_benefit_amount(policy):
 
     return 300000, "청년 맞춤형 역량강화 프로그램 및 활동비 무료 지원"
 
+def is_notice_or_instruction(text: str) -> bool:
+    """공고문 내 제출 서류와 무관한 공지사항, 유의사항, 안내문구인지 판별"""
+    if not text:
+        return True
+    t = text.strip()
+    
+    # 1. 이모지 및 주의 기호
+    if any(em in t for em in ['⚠️', '🚨', '❗', '📢', '☞', '※', 'ㅇ']):
+        return True
+        
+    # 2. 섹션 헤더 (예: (온라인 제출), (발급 후 업로드), [특정 상황...])
+    if re.match(r'^[\[\(].*?[\]\)]$', t) or (t.endswith(')') and any(w in t for w in ['제출', '업로드', '해당', '참고'])):
+        return True
+        
+    # 3. 서술형 종결어미 (설명 문장)
+    if any(t.endswith(end) or f"{end} " in t for end in ['됩니다', '합니다', '바랍니다', '있습니다', '않습니다', '요망', '필수입니다', '간주', '필요', '유의']):
+        return True
+        
+    # 4. 공지 및 안내성 키워드
+    notice_keywords = [
+        '중요', '유의사항', '공고일', '발급분', '문의처', '제출 방법', '주의사항',
+        '인정 됩니다', '온라인 제출', '우편 제출', '방문 제출', '으로 발급', '로 발급',
+        '표기', '기재된', '대체 제출', '불인정', '미발급', 'pdf', '자필 서명'
+    ]
+    if any(kw in t for kw in notice_keywords):
+        return True
+        
+    return False
+
+def clean_document_name(raw_line: str) -> Optional[str]:
+    """공고문 라인에서 순수 증빙 서류명만 정제하여 추출 (공지사항 및 부가설명 제거)"""
+    if not raw_line or is_notice_or_instruction(raw_line):
+        return None
+        
+    # 특수기호, 번호, 불릿 제거
+    cleaned = re.sub(r'^[\s\-\*•▪▫▶►◆◇■□○※☞·~️\uFE0F\uFE0E]+', '', raw_line).strip()
+    cleaned = re.sub(r'^[①-⑳\d]+[\.\)\:\s]+', '', cleaned).strip()
+    cleaned = re.sub(r'^[가-하][\.\)]\s*', '', cleaned).strip()
+    cleaned = re.sub(r'^[\s\-\*•▪▫▶►◆◇■□○※☞·~️\uFE0F\uFE0E]+', '', cleaned).strip()
+    
+    # 다시 한 번 공지 필터링
+    if is_notice_or_instruction(cleaned):
+        return None
+
+    # 콜론 분리 (예: '지원신청서 : 작성 및 체크사항...')
+    if ':' in cleaned:
+        doc_part = cleaned.split(':', 1)[0].strip()
+        if doc_part and len(doc_part) <= 30:
+            cleaned = doc_part
+
+    # 괄호 수식어 정리
+    cleaned = re.sub(r'^\((본인\s*및\s*)?가구원\)\s*', '', cleaned)
+    cleaned = re.sub(r'^\(본인\)\s*', '', cleaned)
+    cleaned = re.sub(r'\[붙임\s*\d+\]', '', cleaned)
+    cleaned = re.sub(r'\(서식\s*\d+\)', '', cleaned)
+    cleaned = re.sub(r'\(\s*\d+\s*부\s*\)', '', cleaned)
+    cleaned = re.sub(r'\s*\d+\s*부$', '', cleaned).strip()
+    
+    cleaned = cleaned.strip(' :.-*•')
+
+    if not (2 <= len(cleaned) <= 35):
+        return None
+
+    # 서류 관련 핵심 명사 판별
+    doc_keywords = [
+        '신청서', '계획서', '동의서', '증명서', '증명', '사본', '등본', '초본',
+        '확인서', '통보서', '확인증', '영수증', '내역서', '통장', '계약서',
+        '원천징수', '신고서', '각서', '신분증', '등록증', '자격증', '성적표',
+        '서류', '통장사본', '자격득실', '대장'
+    ]
+    if any(kw in cleaned for kw in doc_keywords):
+        return cleaned
+
+    return None
+
 def parse_required_docs(policy):
     """
-    공고문 데이터에서 필수 제출 서류 목록을 추출합니다.
+    공고문 데이터에서 필수 제출 서류 목록을 정밀 추출합니다. (공지사항/유의사항 배제)
     """
     docs_raw = policy.get("required_docs") or ""
     if not docs_raw and isinstance(policy.get("raw_json"), dict):
@@ -128,17 +205,20 @@ def parse_required_docs(policy):
 
     parsed = policy.get("required_docs_parsed")
     if parsed and isinstance(parsed, list) and len(parsed) > 0:
-        cleaned = [d for d in parsed if len(d) > 2][:4]
+        cleaned = []
+        for d in parsed:
+            c = clean_document_name(d)
+            if c and c not in cleaned:
+                cleaned.append(c)
         if cleaned:
-            return cleaned
+            return cleaned[:4]
 
-    lines = docs_raw.split("\n")
+    lines = docs_raw.replace("\r\n", "\n").split("\n")
     results = []
     for line in lines:
-        cleaned_line = line.strip().lstrip("○-•*1234567890.)( ").strip()
-        if len(cleaned_line) >= 2 and not cleaned_line.startswith("□") and not cleaned_line.startswith("※") and not cleaned_line.startswith("ㅇ"):
-            if cleaned_line not in results:
-                results.append(cleaned_line)
+        c = clean_document_name(line)
+        if c and c not in results:
+            results.append(c)
         if len(results) >= 4:
             break
 
@@ -644,17 +724,23 @@ def diagnose_policies(profile):
         item_policy = item["policy"]
         pol_url = item_policy.get("apply_url") or "https://youth.seoul.go.kr"
         for doc in item["docs"]:
-            clean_name = re.sub(r'\(.*?\)', '', doc).strip()
+            # 공지사항 재차 방어 필터링
+            c_doc = clean_document_name(doc) or doc
+            if is_notice_or_instruction(c_doc):
+                continue
+            clean_name = re.sub(r'\(.*?\)', '', c_doc).strip()
             if clean_name and clean_name not in checklist_set:
                 checklist_set.add(clean_name)
-                info = get_gov24_link_info(doc, pol_url)
+                info = get_gov24_link_info(c_doc, pol_url)
                 checklist.append({
-                    "name": doc,
+                    "name": c_doc,
                     "clean_name": clean_name,
                     "link": info["link"],
                     "action_label": info["action_label"],
                     "policy_name": item_policy.get("name", "")
                 })
+
+    final_checklist = checklist[:6]
 
     matched_cards = []
     rank_labels = ["적격 1순위", "적격 2순위", "적격 3순위", "적격 4순위"]
@@ -748,7 +834,7 @@ def diagnose_policies(profile):
         "total_benefit_formatted": f"{total_benefit:,}",
         "total_benefit_text": f"연 약 {total_benefit // 10000:,}만원 예상 수혜",
         "matched_count": len(matched_cards),
-        "docs_count": len(checklist),
+        "docs_count": len(final_checklist),
         "policies": matched_cards,
-        "checklist": checklist[:6]
+        "checklist": final_checklist
     }

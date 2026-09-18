@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>유스핏 AI - 내 프로필 및 계정 설정</title>
+  <link rel="icon" type="image/x-icon" href="YouthFit-Logo/favicon/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="YouthFit-Logo/svg/youthfit-icon.svg">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  
+  <!-- Tailwind CSS Engine & Custom Stylesheet -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "var(--surface)",
+            "surface-dim": "var(--surface-dim)",
+            "surface-bright": "var(--surface-bright)",
+            "surface-container-lowest": "var(--surface-container-lowest)",
+            "surface-container-low": "var(--surface-container-low)",
+            "surface-container": "var(--surface-container)",
+            "surface-container-high": "var(--surface-container-high)",
+            "surface-container-highest": "var(--surface-container-highest)",
+            "on-surface": "var(--on-surface)",
+            "on-surface-variant": "var(--on-surface-variant)",
+            "inverse-surface": "var(--inverse-surface)",
+            "inverse-on-surface": "var(--inverse-on-surface)",
+            "outline": "var(--outline)",
+            "outline-variant": "var(--outline-variant)",
+            "primary": "var(--primary)",
+            "primary-container": "var(--primary-container)",
+            "on-primary": "var(--on-primary)",
+            "on-primary-container": "var(--on-primary-container)",
+            "primary-fixed": "var(--primary-fixed)",
+            "primary-fixed-dim": "var(--primary-fixed-dim)",
+            "secondary": "var(--secondary)",
+            "secondary-container": "var(--secondary-container)",
+            "on-secondary": "var(--on-secondary)",
+            "on-secondary-container": "var(--on-secondary-container)",
+            "secondary-fixed": "var(--secondary-fixed)",
+            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
+            "tertiary": "var(--tertiary)",
+            "tertiary-container": "var(--tertiary-container)",
+            "error": "var(--error)",
+            "error-container": "var(--error-container)",
+            "hairline-border": "var(--hairline-border)",
+            "hairline-hover": "var(--hairline-hover)"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem",
+            "margin": "2rem",
+            "margin-mobile": "1rem",
+            "gutter": "1.5rem"
+          },
+          fontFamily: {
+            "body": ["Pretendard", "Plus Jakarta Sans", "sans-serif"],
+            "display": ["Plus Jakarta Sans", "Pretendard", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body transition-colors duration-200">
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-hairline-border">
+    <div class="h-16 max-w-7xl mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-md">
+      <!-- Logo -->
+      <a class="flex items-center shrink-0 group py-1" href="index.html" title="YouthFit AI 홈으로 이동">
+        <img src="YouthFit-Logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-8 sm:h-9 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
+        <img src="YouthFit-Logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-8 sm:h-9 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
+      </a>
+
+      <!-- Center Links -->
+      <nav class="hidden lg:flex items-center gap-space-xs px-space-xs">
+        <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="diagnosis.html">1분 맞춤 진단</a>
+        <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="dashboard.html">내 진단 대시보드</a>
+        <a class="px-space-md py-space-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors rounded-lg" href="explorer.html">정책 탐색기 (706건)</a>
+      </nav>
+
+      <!-- Right Actions -->
+      <div class="flex items-center gap-space-sm shrink-0">
+        <button class="theme-toggle-btn w-9 h-9 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-colors border border-hairline-border cursor-pointer shadow-sm" onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
+          <span class="material-symbols-outlined text-[20px] theme-icon text-primary">dark_mode</span>
+        </button>
+
+        <a class="hidden sm:inline-flex items-center px-space-md py-space-sm text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-colors" href="auth.html">
+          로그인
+        </a>
+        <a class="inline-flex items-center justify-center px-space-md py-space-sm text-sm font-bold bg-primary text-on-primary rounded-lg shadow-sm hover:bg-primary-container transition-all active:scale-95" href="diagnosis.html">
+          무료 진단 시작
+        </a>
+        <a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:opacity-90 transition-opacity" href="profile.html" title="내 프로필">
+          <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="w-full pt-20 pb-20 flex-1 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto flex flex-col py-4">
+
+      <!-- Breadcrumb & Page Title Banner -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-hairline-border">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-semibold text-outline mb-1">
+            <a href="index.html" class="hover:text-primary transition-colors flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">home</span> 홈
+            </a>
+            <span class="text-hairline-border">/</span>
+            <a href="dashboard.html" class="hover:text-primary transition-colors">대시보드</a>
+            <span class="text-hairline-border">/</span>
+            <span class="text-primary font-bold">프로필 및 계정 설정</span>
+          </div>
+          <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight flex items-center gap-2.5">
+            <span>회원 프로필 및 맞춤 조건 관리</span>
+            <span id="badge-role" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-secondary-container text-on-secondary-container border border-secondary/20">
+              정식회원
+            </span>
+          </h1>
+          <p class="text-xs sm:text-sm text-on-surface-variant mt-1">
+            닉네임, 계정 정보 및 1분 맞춤 진단 조건(나이, 지역구, 경제활동, 소득)을 변경하고 데이터베이스에 실시간으로 반영합니다.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <a href="dashboard.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-container text-on-surface text-xs font-bold hover:bg-surface-container-high transition-colors border border-hairline-border shadow-sm cursor-pointer">
+            <span class="material-symbols-outlined text-base text-primary">dashboard</span>
+            <span>내 진단 대시보드</span>
+          </a>
+          <button type="button" onclick="handleGlobalLogout()" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-error hover:bg-error/10 transition-colors border border-error/20 cursor-pointer">
+            <span class="material-symbols-outlined text-base">logout</span>
+            <span>로그아웃</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Two-Column Grid Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: User Summary Persona Card (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col gap-5 sticky top-24">
+          
+          <!-- Persona Card -->
+          <div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest p-6 shadow-md border border-hairline-border flex flex-col items-center text-center">
+            <!-- Glow Accent -->
+            <div class="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-tr from-primary/30 to-secondary/30 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Avatar -->
+            <div class="relative mt-2 mb-4">
+              <div id="user-avatar" class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary via-primary-container to-secondary text-on-primary font-extrabold text-3xl flex items-center justify-center shadow-lg border-2 border-surface-container-lowest">
+                K
+              </div>
+              <div id="provider-badge-icon" class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center shadow border border-hairline-border" title="인증 제공자">
+                <span class="material-symbols-outlined text-sm text-primary">mail</span>
+              </div>
+            </div>
+
+            <!-- Name & Email -->
+            <h2 id="card-user-name" class="font-display text-xl font-extrabold text-on-surface">kkk 님</h2>
+            <p id="card-user-email" class="text-xs text-on-surface-variant mt-0.5 truncate max-w-full font-mono">user@example.com</p>
+
+            <!-- Status Pills -->
+            <div class="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+              <span id="card-provider-pill" class="px-2.5 py-0.5 rounded-full bg-surface-container text-[11px] font-semibold text-on-surface flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs text-primary">verified_user</span>
+                <span>일반 이메일 계정</span>
+              </span>
+              <span id="card-db-sync-pill" class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>DB 동기화 활성</span>
+              </span>
+            </div>
+
+            <!-- Divider -->
+            <div class="w-full my-4 border-t border-hairline-border"></div>
+
+            <!-- Saved Diagnosis Summary Mini Box -->
+            <div class="w-full rounded-2xl bg-surface-container-low p-3.5 border border-hairline-border text-left space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-on-surface flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm text-primary">analytics</span>
+                  <span>연계 진단 수혜 요약</span>
+                </span>
+                <span id="card-matched-count" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary-container text-on-secondary-container">
+                  4건 판별
+                </span>
+              </div>
+              <div class="flex items-baseline gap-1">
+                <span class="text-xs text-outline">연 최대</span>
+                <span id="card-benefit-amount" class="font-display text-2xl font-extrabold text-secondary">3,200,000</span>
+                <span class="text-xs font-bold text-on-surface">원 혜택</span>
+              </div>
+              <p id="card-conditions-summary" class="text-[11px] text-on-surface-variant truncate">
+                만 24세 · 서울특별시 관악구 · 구직자
+              </p>
+            </div>
+
+            <!-- Quick Action Links -->
+            <div class="w-full space-y-2 mt-4 pt-1">
+              <button type="button" onclick="triggerOneClickDiagnosis()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary text-xs font-bold shadow hover:brightness-105 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-base">bolt</span>
+                <span>내 조건으로 0.5초 즉시 진단</span>
+              </button>
+              <a href="dashboard.html" class="w-full py-2.5 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold transition-colors flex items-center justify-center gap-1.5 border border-hairline-border cursor-pointer">
+                <span class="material-symbols-outlined text-base text-primary">arrow_forward</span>
+                <span>보관함 결과 대시보드</span>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Cloud Database Sync Info Notice -->
+          <div class="rounded-2xl bg-surface-container-lowest p-4 border border-hairline-border text-xs text-on-surface-variant space-y-1.5">
+            <div class="flex items-center gap-1.5 font-bold text-on-surface">
+              <span class="material-symbols-outlined text-sm text-primary">database</span>
+              <span>데이터베이스 실시간 반영 안내</span>
+            </div>
+            <p class="text-[11px] leading-relaxed text-outline">
+              프로필에서 변경하신 닉네임과 맞춤 진단 조건은 데이터베이스(PostgreSQL / SQLite <code>users</code> 테이블)에 즉시 저장되며, 이후 로그인 및 실시간 추천 시에도 유지됩니다.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Edit Profile & Conditions Form (8 cols) -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+          
+          <!-- Tab Navigation -->
+          <div class="flex items-center gap-2 p-1 rounded-2xl bg-surface-container-low border border-hairline-border">
+            <button type="button" id="tab-btn-account" onclick="switchProfileTab('account')" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-surface-container-lowest text-primary shadow-sm">
+              <span class="material-symbols-outlined text-base">badge</span>
+              <span>1. 기본 계정 정보 (닉네임/비번)</span>
+            </button>
+            <button type="button" id="tab-btn-conditions" onclick="switchProfileTab('conditions')" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface">
+              <span class="material-symbols-outlined text-base">tune</span>
+              <span>2. 맞춤 진단 조건 (연령/지역/소득)</span>
+            </button>
+          </div>
+
+          <!-- FORM START -->
+          <form id="profile-update-form" onsubmit="saveProfileChanges(event)" class="space-y-6">
+            
+            <!-- SECTION 1: 기본 회원 정보 (닉네임 / 이메일 / 비밀번호) -->
+            <div id="pane-account" class="p-6 rounded-3xl bg-surface-container-lowest border border-hairline-border shadow-sm space-y-5">
+              <div class="flex items-center justify-between pb-3 border-b border-hairline-border">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-lg">person</span>
+                  </span>
+                  <div>
+                    <h3 class="text-base font-bold text-on-surface">기본 계정 및 닉네임 설정</h3>
+                    <p class="text-xs text-outline">상단 헤더와 정책 추천 보고서에 표시되는 회원 정보입니다.</p>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary-fixed text-primary">필수</span>
+              </div>
+
+              <!-- Name / Nickname Input (Realtime Preview) -->
+              <div class="space-y-1.5">
+                <label for="input-user-name" class="block text-xs font-bold text-on-surface">
+                  닉네임 / 이름 <span class="text-error">*</span>
+                </label>
+                <div class="relative">
+                  <input type="text" id="input-user-name" name="name" required minlength="1" maxlength="30"
+                    oninput="handleNameInput(this.value)"
+                    placeholder="예: kkk, 홍길동"
+                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-surface-container-lowest text-on-surface text-sm border border-hairline-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                  <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-lg">badge</span>
+                </div>
+                <p class="text-[11px] text-outline">
+                  💡 변경 즉시 상단 헤더의 <code class="text-primary font-bold">[👤 이름 님]</code> 배지와 좌측 아바타에 실시간 반영됩니다.
+                </p>
+              </div>
+
+              <!-- Email Input (Readonly) -->
+              <div class="space-y-1.5">
+                <label for="input-user-email" class="block text-xs font-bold text-on-surface">
+                  가입 계정 이메일
+                </label>
+                <div class="relative">
+                  <input type="email" id="input-user-email" disabled readonly
+                    class="w-full pl-10 pr-24 py-3 rounded-xl bg-surface-container-low text-on-surface-variant text-sm border border-hairline-border cursor-not-allowed outline-none font-mono">
+                  <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-lg">mail</span>
+                  <span id="badge-provider-type" class="absolute right-3 top-2.5 px-2 py-1 rounded-md text-[10px] font-bold bg-surface-container text-on-surface-variant border border-hairline-border">
+                    인증 계정
+                  </span>
+                </div>
+                <p class="text-[11px] text-outline">보안 정책상 가입된 이메일 계정 ID는 직접 변경할 수 없습니다.</p>
+              </div>
+
+              <!-- Password Change Box (Only for Local Email Accounts) -->
+              <div id="box-password-change" class="pt-2 border-t border-hairline-border space-y-3">
+                <div class="flex items-center justify-between cursor-pointer py-1" onclick="togglePasswordSection()">
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-primary">lock_reset</span>
+                    <span class="text-xs font-bold text-on-surface">비밀번호 변경 (선택사항)</span>
+                  </div>
+                  <span id="icon-pwd-toggle" class="material-symbols-outlined text-base text-outline transition-transform">expand_more</span>
+                </div>
+
+                <div id="pane-pwd-fields" class="hidden space-y-3 pt-1">
+                  <div class="space-y-1">
+                    <label for="input-current-pwd" class="block text-xs font-semibold text-on-surface">현재 비밀번호</label>
+                    <input type="password" id="input-current-pwd" placeholder="현재 비밀번호를 입력하세요"
+                      class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs border border-hairline-border focus:border-primary outline-none">
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                      <label for="input-new-pwd" class="block text-xs font-semibold text-on-surface">새 비밀번호 (6자 이상)</label>
+                      <input type="password" id="input-new-pwd" placeholder="새 비밀번호 입력"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs border border-hairline-border focus:border-primary outline-none">
+                    </div>
+                    <div class="space-y-1">
+                      <label for="input-confirm-pwd" class="block text-xs font-semibold text-on-surface">새 비밀번호 확인</label>
+                      <input type="password" id="input-confirm-pwd" placeholder="새 비밀번호 다시 입력"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs border border-hairline-border focus:border-primary outline-none">
+                    </div>
+                  </div>
+                  <p class="text-[11px] text-outline">비밀번호를 변경하지 않으려면 빈칸으로 유지해 주세요.</p>
+                </div>
+              </div>
+
+              <!-- Google Account Notice -->
+              <div id="notice-google-pwd" class="hidden p-3 rounded-xl bg-surface-container-low border border-hairline-border flex items-center gap-2 text-xs text-on-surface-variant">
+                <span class="material-symbols-outlined text-base text-primary">info</span>
+                <span>Google OAuth 2.0으로 연동된 계정은 구글 보안 정책에 따라 비밀번호 변경이 필요하지 않습니다.</span>
+              </div>
+            </div>
+
+            <!-- SECTION 2: 맞춤 진단 조건 관리 (나이, 지역, 직업, 가구, 소득) -->
+            <div id="pane-conditions" class="p-6 rounded-3xl bg-surface-container-lowest border border-hairline-border shadow-sm space-y-6">
+              <div class="flex items-center justify-between pb-3 border-b border-hairline-border">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined text-lg">tune</span>
+                  </span>
+                  <div>
+                    <h3 class="text-base font-bold text-on-surface">나의 맞춤 청년 정책 진단 조건</h3>
+                    <p class="text-xs text-outline">설정하신 조건은 AI 706건 정책 매칭 시 기준 조건으로 자동 적용됩니다.</p>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-fixed text-secondary">추천 연동</span>
+              </div>
+
+              <!-- 1. 나이 입력 (만 나이) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label for="input-age" class="text-xs font-bold text-on-surface flex items-center gap-1">
+                    <span class="w-5 h-5 rounded-full bg-surface-container text-primary text-[11px] font-bold flex items-center justify-center">01</span>
+                    <span>만 나이 (연령)</span>
+                  </label>
+                  <span id="display-age" class="text-xs font-extrabold text-primary font-display">만 24세 (청년 기본연령)</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <input type="range" id="input-age-range" min="19" max="39" value="24"
+                    oninput="syncAgeInput(this.value)"
+                    class="flex-1 h-2 bg-surface-container rounded-lg appearance-none cursor-pointer accent-primary">
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" onclick="adjustAge(-1)" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm cursor-pointer">-</button>
+                    <input type="number" id="input-age" min="19" max="39" value="24"
+                      oninput="syncAgeRange(this.value)"
+                      class="w-14 py-1.5 text-center font-bold rounded-lg bg-surface-container-lowest border border-hairline-border text-sm text-on-surface">
+                    <button type="button" onclick="adjustAge(1)" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm cursor-pointer">+</button>
+                    <span class="text-xs font-semibold text-outline">세</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. 거주 지역 및 자치구 -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-on-surface flex items-center gap-1">
+                  <span class="w-5 h-5 rounded-full bg-surface-container text-primary text-[11px] font-bold flex items-center justify-center">02</span>
+                  <span>거주 지역 (시/도 및 자치구)</span>
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label for="select-region" class="block text-[11px] text-outline mb-1">시 / 도</label>
+                    <select id="select-region" onchange="handleRegionChange(this.value)"
+                      class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs font-semibold border border-hairline-border focus:border-primary outline-none">
+                      <option value="서울" selected>서울특별시</option>
+                      <option value="경기">경기도</option>
+                      <option value="인천">인천광역시</option>
+                      <option value="부산">부산광역시</option>
+                      <option value="대구">대구광역시</option>
+                      <option value="광주">광주광역시</option>
+                      <option value="대전">대전광역시</option>
+                      <option value="울산">울산광역시</option>
+                      <option value="세종">세종특별자치시</option>
+                      <option value="강원">강원특별자치도</option>
+                      <option value="충북">충청북도</option>
+                      <option value="충남">충청남도</option>
+                      <option value="전북">전북특별자치도</option>
+                      <option value="전남">전라남도</option>
+                      <option value="경북">경상북도</option>
+                      <option value="경남">경상남도</option>
+                      <option value="제주">제주특별자치도</option>
+                    </select>
+                  </div>
+                  <div id="box-district">
+                    <label for="select-district" class="block text-[11px] text-outline mb-1">서울시 25개 자치구</label>
+                    <select id="select-district"
+                      class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs font-semibold border border-hairline-border focus:border-primary outline-none">
+                      <option value="관악구" selected>관악구</option>
+                      <option value="강남구">강남구</option>
+                      <option value="강동구">강동구</option>
+                      <option value="강북구">강북구</option>
+                      <option value="강서구">강서구</option>
+                      <option value="광진구">광진구</option>
+                      <option value="구로구">구로구</option>
+                      <option value="금천구">금천구</option>
+                      <option value="노원구">노원구</option>
+                      <option value="도봉구">도봉구</option>
+                      <option value="동대문구">동대문구</option>
+                      <option value="동작구">동작구</option>
+                      <option value="마포구">마포구</option>
+                      <option value="서대문구">서대문구</option>
+                      <option value="서초구">서초구</option>
+                      <option value="성동구">성동구</option>
+                      <option value="성북구">성북구</option>
+                      <option value="송파구">송파구</option>
+                      <option value="양천구">양천구</option>
+                      <option value="영등포구">영등포구</option>
+                      <option value="용산구">용산구</option>
+                      <option value="은평구">은평구</option>
+                      <option value="종로구">종로구</option>
+                      <option value="중구">중구</option>
+                      <option value="중랑구">중랑구</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. 취업 / 경제활동 상태 -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-on-surface flex items-center gap-1">
+                  <span class="w-5 h-5 rounded-full bg-surface-container text-primary text-[11px] font-bold flex items-center justify-center">03</span>
+                  <span>경제활동 (취업 상태)</span>
+                </label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <label class="radio-card p-3 rounded-xl border border-hairline-border bg-surface-container-lowest hover:border-primary/50 cursor-pointer flex flex-col items-center text-center gap-1 transition-all">
+                    <input type="radio" name="jobStatus" value="jobseeker" checked class="hidden">
+                    <span class="material-symbols-outlined text-xl text-primary">search</span>
+                    <span class="text-xs font-bold text-on-surface">취업준비생</span>
+                    <span class="text-[10px] text-outline">미취업·구직자</span>
+                  </label>
+                  <label class="radio-card p-3 rounded-xl border border-hairline-border bg-surface-container-lowest hover:border-primary/50 cursor-pointer flex flex-col items-center text-center gap-1 transition-all">
+                    <input type="radio" name="jobStatus" value="employed" class="hidden">
+                    <span class="material-symbols-outlined text-xl text-primary">work</span>
+                    <span class="text-xs font-bold text-on-surface">재직자</span>
+                    <span class="text-[10px] text-outline">중소·스타트업</span>
+                  </label>
+                  <label class="radio-card p-3 rounded-xl border border-hairline-border bg-surface-container-lowest hover:border-primary/50 cursor-pointer flex flex-col items-center text-center gap-1 transition-all">
+                    <input type="radio" name="jobStatus" value="freelancer" class="hidden">
+                    <span class="material-symbols-outlined text-xl text-primary">rocket_launch</span>
+                    <span class="text-xs font-bold text-on-surface">프리랜서·창업</span>
+                    <span class="text-[10px] text-outline">청년 1인기업</span>
+                  </label>
+                  <label class="radio-card p-3 rounded-xl border border-hairline-border bg-surface-container-lowest hover:border-primary/50 cursor-pointer flex flex-col items-center text-center gap-1 transition-all">
+                    <input type="radio" name="jobStatus" value="student" class="hidden">
+                    <span class="material-symbols-outlined text-xl text-primary">school</span>
+                    <span class="text-xs font-bold text-on-surface">대학(원)생</span>
+                    <span class="text-[10px] text-outline">재학·휴학생</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 4. 가구 형태 및 기준 중위소득 구간 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label class="text-xs font-bold text-on-surface flex items-center gap-1">
+                    <span class="w-5 h-5 rounded-full bg-surface-container text-primary text-[11px] font-bold flex items-center justify-center">04</span>
+                    <span>가구 형태</span>
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="radio-card p-2.5 rounded-xl border border-hairline-border bg-surface-container-lowest hover:border-primary/50 cursor-pointer flex items-center justify-center gap-1.5 transition-all text-xs font-bold">
+                      <input type="radio" name="household" value="single" checked class="hidden">
+                      <span class="material-symbols-outlined text-base text-primary">person</span>
+                      <span>1인 단독가구</span>
+                    </label>
+                    <label class="radio-card p-2.5 rounded-xl border border-hairline-border bg-surface-container-lowest hover:border-primary/50 cursor-pointer flex items-center justify-center gap-1.5 transition-all text-xs font-bold">
+                      <input type="radio" name="household" value="multi" class="hidden">
+                      <span class="material-symbols-outlined text-base text-primary">groups</span>
+                      <span>다인가구(동거)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <label for="select-income" class="text-xs font-bold text-on-surface flex items-center gap-1">
+                    <span class="w-5 h-5 rounded-full bg-surface-container text-primary text-[11px] font-bold flex items-center justify-center">05</span>
+                    <span>기준 중위소득 구간</span>
+                  </label>
+                  <select id="select-income"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs font-semibold border border-hairline-border focus:border-primary outline-none">
+                    <option value="income60" selected>기준 중위소득 60% 이하 (월 133만원 이하)</option>
+                    <option value="income120">중위소득 60% ~ 120% (월 133만 ~ 267만원)</option>
+                    <option value="income150">중위소득 120% ~ 150% (월 267만 ~ 334만원)</option>
+                    <option value="incomeOver">중위소득 150% 초과</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Bottom Floating Save Bar -->
+            <div class="sticky bottom-4 z-30 p-4 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-md shadow-2xl border border-primary/25 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div class="flex items-center gap-2 text-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="text-on-surface font-semibold">데이터베이스에 즉시 동기화됩니다.</span>
+              </div>
+              
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <a href="dashboard.html" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold transition-colors cursor-pointer text-center border border-hairline-border">
+                  취소 / 대시보드
+                </a>
+                <button type="submit" id="btn-save-profile" class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
+                  <span class="material-symbols-outlined text-base">save</span>
+                  <span id="btn-save-text">변경사항 저장하기</span>
+                </button>
+              </div>
+            </div>
+
+          </form>
+          <!-- FORM END -->
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="w-full bg-surface-container-lowest border-t border-hairline-border py-8 text-center text-xs text-outline">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <img src="YouthFit-Logo/svg/youthfit-icon.svg" alt="YouthFit AI" class="h-5 w-auto">
+        <span class="font-bold text-on-surface">YouthFit AI</span>
+        <span>· 청년 복지 정책 AI 비서</span>
+      </div>
+      <p>© 2026 YouthFit AI Platform. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/app.js?v=20260918_v6"></script>
+  <script>
+    // Profile Page State
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Auth Guard: Check if user is logged in
+      currentUser = (typeof getAuthUser === 'function') ? getAuthUser() : null;
+      if (!currentUser || !currentUser.id) {
+        alert("로그인이 필요한 페이지입니다. 로그인 화면으로 이동합니다.");
+        window.location.replace("auth.html");
+        return;
+      }
+
+      // 2. Fetch fresh profile data directly from Database
+      await loadProfileFromDB(currentUser.id);
+
+      // 3. Setup radio-card styling
+      setupRadioCards();
+    });
+
+    // Switch Tabs
+    function switchProfileTab(tab) {
+      const paneAccount = document.getElementById('pane-account');
+      const paneConditions = document.getElementById('pane-conditions');
+      const btnAccount = document.getElementById('tab-btn-account');
+      const btnConditions = document.getElementById('tab-btn-conditions');
+
+      if (tab === 'account') {
+        paneAccount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        btnAccount.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+        btnAccount.classList.remove('text-on-surface-variant');
+        btnConditions.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+        btnConditions.classList.add('text-on-surface-variant');
+      } else {
+        paneConditions.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        btnConditions.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+        btnConditions.classList.remove('text-on-surface-variant');
+        btnAccount.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+        btnAccount.classList.add('text-on-surface-variant');
+      }
+    }
+
+    // Toggle Password section
+    function togglePasswordSection() {
+      const pane = document.getElementById('pane-pwd-fields');
+      const icon = document.getElementById('icon-pwd-toggle');
+      if (pane.classList.contains('hidden')) {
+        pane.classList.remove('hidden');
+        icon.textContent = 'expand_less';
+      } else {
+        pane.classList.add('hidden');
+        icon.textContent = 'expand_more';
+      }
+    }
+
+    // Realtime Name Input synchronization
+    function handleNameInput(val) {
+      const name = val.trim() || '회원';
+      const cardName = document.getElementById('card-user-name');
+      const avatar = document.getElementById('user-avatar');
+      if (cardName) cardName.textContent = `${name} 님`;
+      if (avatar) avatar.textContent = name.charAt(0).toUpperCase();
+    }
+
+    // Load from DB
+    async function loadProfileFromDB(userId) {
+      try {
+        const res = await fetch(`/api/user/profile?user_id=${userId}`);
+        const json = await res.json();
+        if (res.ok && json.status === 'success' && json.data) {
+          const u = json.data;
+          currentUser = Object.assign({}, currentUser, u);
+
+          // Populate Basic Info
+          document.getElementById('input-user-name').value = u.name || '';
+          document.getElementById('input-user-email').value = u.email || '';
+          handleNameInput(u.name || '');
+
+          document.getElementById('card-user-email').textContent = u.email || '';
+
+          // Provider & Role
+          const isGoogle = u.provider === 'google';
+          const isAdm = (u.role || '').toLowerCase() === 'admin' || (u.email || '').startsWith('admin@');
+
+          const badgeRole = document.getElementById('badge-role');
+          if (badgeRole) {
+            badgeRole.textContent = isAdm ? '시스템 최고관리자' : '정식회원';
+            badgeRole.className = isAdm 
+              ? 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-error/10 text-error border border-error/20'
+              : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-secondary-container text-on-secondary-container border border-secondary/20';
+          }
+
+          const providerPill = document.getElementById('card-provider-pill');
+          const providerIcon = document.getElementById('provider-badge-icon');
+          const providerTypeBadge = document.getElementById('badge-provider-type');
+          const boxPwd = document.getElementById('box-password-change');
+          const noticeGoogle = document.getElementById('notice-google-pwd');
+
+          if (isGoogle) {
+            if (providerPill) providerPill.innerHTML = `<span class="material-symbols-outlined text-xs text-secondary">g_mobiledata</span><span>Google OAuth 2.0 계정</span>`;
+            if (providerIcon) providerIcon.innerHTML = `<span class="material-symbols-outlined text-sm text-secondary">g_mobiledata</span>`;
+            if (providerTypeBadge) providerTypeBadge.textContent = 'Google 연동';
+            if (boxPwd) boxPwd.classList.add('hidden');
+            if (noticeGoogle) noticeGoogle.classList.remove('hidden');
+          } else {
+            if (providerPill) providerPill.innerHTML = `<span class="material-symbols-outlined text-xs text-primary">mail</span><span>일반 이메일 계정</span>`;
+            if (providerIcon) providerIcon.innerHTML = `<span class="material-symbols-outlined text-sm text-primary">mail</span>`;
+            if (providerTypeBadge) providerTypeBadge.textContent = '이메일 가입';
+            if (boxPwd) boxPwd.classList.remove('hidden');
+            if (noticeGoogle) noticeGoogle.classList.add('hidden');
+          }
+
+          // Populate Conditions
+          const cond = (u.profile && u.profile.user_conditions) || {
+            age: 24,
+            region: '서울',
+            district: '관악구',
+            jobStatus: 'jobseeker',
+            household: 'single',
+            income: 'income60'
+          };
+
+          // Age
+          syncAgeInput(cond.age || 24);
+
+          // Region & District
+          const selRegion = document.getElementById('select-region');
+          if (selRegion) selRegion.value = cond.region || '서울';
+          handleRegionChange(cond.region || '서울');
+          const selDist = document.getElementById('select-district');
+          if (selDist && cond.district) selDist.value = cond.district;
+
+          // Job Status
+          const jobRadio = document.querySelector(`input[name="jobStatus"][value="${cond.jobStatus || 'jobseeker'}"]`);
+          if (jobRadio) {
+            jobRadio.checked = true;
+            updateRadioCardActive(jobRadio);
+          }
+
+          // Household
+          const houseRadio = document.querySelector(`input[name="household"][value="${cond.household || 'single'}"]`);
+          if (houseRadio) {
+            houseRadio.checked = true;
+            updateRadioCardActive(houseRadio);
+          }
+
+          // Income
+          const selIncome = document.getElementById('select-income');
+          if (selIncome) selIncome.value = cond.income || 'income60';
+
+          // Recent Diagnosis Summary in Left Card
+          const recent = u.profile && u.profile.recent_diagnosis;
+          if (recent) {
+            const benefit = recent.total_benefit_formatted || Number(recent.total_benefit || 3200000).toLocaleString('ko-KR');
+            document.getElementById('card-benefit-amount').textContent = benefit;
+            document.getElementById('card-matched-count').textContent = `${recent.matched_count || 4}건 판별`;
+            document.getElementById('card-conditions-summary').textContent = `만 ${cond.age || 24}세 · ${cond.region || '서울'} ${cond.district || ''} · ${getJobLabel(cond.jobStatus)}`;
+          }
+        }
+      } catch (e) {
+        console.error("Profile load from DB failed:", e);
+      }
+    }
+
+    // Save Profile Changes
+    async function saveProfileChanges(event) {
+      event.preventDefault();
+      if (!currentUser || !currentUser.id) return;
+
+      const btn = document.getElementById('btn-save-profile');
+      const btnText = document.getElementById('btn-save-text');
+      const originalText = btnText.textContent;
+
+      const name = document.getElementById('input-user-name').value.trim();
+      if (!name) {
+        alert("이름(닉네임)을 입력해 주세요.");
+        return;
+      }
+
+      // Password fields check
+      const currentPwd = document.getElementById('input-current-pwd')?.value || '';
+      const newPwd = document.getElementById('input-new-pwd')?.value || '';
+      const confirmPwd = document.getElementById('input-confirm-pwd')?.value || '';
+
+      if (newPwd) {
+        if (newPwd.length < 6) {
+          alert("새 비밀번호는 최소 6자 이상이어야 합니다.");
+          return;
+        }
+        if (newPwd !== confirmPwd) {
+          alert("새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.");
+          return;
+        }
+        if (!currentPwd) {
+          alert("비밀번호 변경을 위해 현재 비밀번호를 입력해 주세요.");
+          return;
+        }
+      }
+
+      // Collect condition data
+      const age = parseInt(document.getElementById('input-age').value, 10) || 24;
+      const region = document.getElementById('select-region').value;
+      const district = region === '서울' ? document.getElementById('select-district').value : '';
+      const jobStatus = document.querySelector('input[name="jobStatus"]:checked')?.value || 'jobseeker';
+      const household = document.querySelector('input[name="household"]:checked')?.value || 'single';
+      const income = document.getElementById('select-income').value;
+
+      const conditions = {
+        age: age,
+        region: region,
+        regionFull: region === '서울' ? '서울특별시' : region,
+        district: district,
+        jobStatus: jobStatus,
+        household: household,
+        income: income
+      };
+
+      // Button spinner state
+      btn.disabled = true;
+      btnText.textContent = "DB 반영 중...";
+
+      try {
+        const payload = {
+          user_id: currentUser.id,
+          name: name,
+          conditions: conditions,
+          current_password: currentPwd || null,
+          new_password: newPwd || null
+        };
+
+        const res = await fetch('/api/user/update-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+        if (!res.ok || json.status !== 'success') {
+          throw new Error(json.detail || '프로필 변경에 실패했습니다.');
+        }
+
+        const updated = json.data;
+
+        // 1. Synchronize Client-side Auth Sessions
+        currentUser = Object.assign({}, currentUser, updated);
+        const remember = !!localStorage.getItem('youthfit_user');
+        setAuthUser(currentUser, remember);
+
+        // Synchronize member profile storage
+        sessionStorage.setItem('youthfit_member_profile', JSON.stringify(conditions));
+        if (remember) {
+          localStorage.setItem('youthfit_member_profile', JSON.stringify(conditions));
+        }
+
+        // 2. Clear password inputs
+        if (document.getElementById('input-current-pwd')) document.getElementById('input-current-pwd').value = '';
+        if (document.getElementById('input-new-pwd')) document.getElementById('input-new-pwd').value = '';
+        if (document.getElementById('input-confirm-pwd')) document.getElementById('input-confirm-pwd').value = '';
+
+        // 3. Update Global Auth Header immediately
+        if (typeof updateGlobalAuthHeader === 'function') {
+          updateGlobalAuthHeader();
+        }
+
+        // 4. Update Left Card live
+        handleNameInput(updated.name);
+        document.getElementById('card-conditions-summary').textContent = `만 ${conditions.age}세 · ${conditions.region} ${conditions.district} · ${getJobLabel(conditions.jobStatus)}`;
+
+        // Toast success
+        if (window.showToast) {
+          window.showToast(`✓ [${updated.name} 님] 회원 정보와 맞춤 조건이 데이터베이스에 저장되었습니다!`, 'success');
+        } else {
+          alert(`성공적으로 저장되었습니다! (${updated.name} 님)`);
+        }
+
+      } catch (err) {
+        alert("프로필 저장 오류: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = originalText;
+      }
+    }
+
+    // Helper functions
+    function syncAgeInput(val) {
+      document.getElementById('input-age-range').value = val;
+      document.getElementById('input-age').value = val;
+      document.getElementById('display-age').textContent = `만 ${val}세 (${val <= 34 ? '청년 기본연령' : '청년 연장지원'})`;
+    }
+
+    function syncAgeRange(val) {
+      let num = parseInt(val, 10);
+      if (isNaN(num)) num = 24;
+      if (num < 19) num = 19;
+      if (num > 39) num = 39;
+      syncAgeInput(num);
+    }
+
+    function adjustAge(delta) {
+      const cur = parseInt(document.getElementById('input-age').value, 10) || 24;
+      syncAgeRange(cur + delta);
+    }
+
+    function handleRegionChange(reg) {
+      const box = document.getElementById('box-district');
+      if (reg === '서울') {
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+
+    function setupRadioCards() {
+      document.querySelectorAll('.radio-card input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          const group = radio.name;
+          document.querySelectorAll(`input[name="${group}"]`).forEach(r => updateRadioCardActive(r));
+        });
+        if (radio.checked) updateRadioCardActive(radio);
+      });
+    }
+
+    function updateRadioCardActive(radio) {
+      const parent = radio.closest('.radio-card');
+      if (!parent) return;
+      if (radio.checked) {
+        parent.classList.add('border-primary', 'bg-primary/5', 'ring-1', 'ring-primary');
+        parent.classList.remove('bg-surface-container-lowest', 'border-hairline-border');
+      } else {
+        parent.classList.remove('border-primary', 'bg-primary/5', 'ring-1', 'ring-primary');
+        parent.classList.add('bg-surface-container-lowest', 'border-hairline-border');
+      }
+    }
+
+    function getJobLabel(status) {
+      const map = {
+        jobseeker: '취업준비생',
+        employed: '재직자',
+        freelancer: '프리랜서·창업',
+        student: '대학(원)생'
+      };
+      return map[status] || '구직자';
+    }
+  </script>
+</body>
+</html>
