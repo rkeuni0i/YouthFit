@@ -133,6 +133,11 @@ async def serve_explorer():
 async def serve_admin():
     return FileResponse(os.path.join(web_dir, "admin.html"))
 
+@app.get("/profile")
+@app.get("/profile.html")
+async def serve_profile():
+    return FileResponse(os.path.join(web_dir, "profile.html"))
+
 # 3. REST API 정의
 class DiagnosisRequest(BaseModel):
     age: int = 24
@@ -175,7 +180,8 @@ async def api_diagnose(req: DiagnosisRequest, request: Request):
 try:
     from services.auth_service import (
         signup_user, login_user, authenticate_google_user, 
-        save_user_diagnosis, get_user_profile, update_user_profile
+        save_user_diagnosis, get_user_profile, update_user_profile,
+        update_user_account
     )
 except ImportError:
     pass
@@ -204,6 +210,13 @@ class SaveDiagnosisRequest(BaseModel):
 class UpdateProfileRequest(BaseModel):
     user_id: int
     profile: Dict[str, Any]
+
+class UpdateAccountRequest(BaseModel):
+    user_id: int
+    name: str
+    conditions: Optional[Dict[str, Any]] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
 
 @app.get("/api/auth/google/config")
 async def api_google_config():
@@ -312,6 +325,30 @@ async def api_get_profile(user_id: int = Query(...)):
         return JSONResponse(content={"status": "success", "data": data})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"프로필 조회 오류: {str(e)}")
+
+@app.post("/api/user/update-account")
+async def api_update_account(req: UpdateAccountRequest, request: Request):
+    """로그인한 회원의 닉네임, 비밀번호 및 맞춤 진단 조건 종합 변경 및 DB 반영"""
+    try:
+        updated_user = update_user_account(
+            user_id=req.user_id,
+            name=req.name,
+            conditions=req.conditions,
+            current_password=req.current_password,
+            new_password=req.new_password
+        )
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        admin_service.log_user_activity(
+            action="회원 프로필 정보 변경",
+            details=f"회원 ID {req.user_id}, 닉네임 '{req.name}'으로 변경 및 진단 조건 동기화",
+            user_name=req.name,
+            ip_address=client_ip
+        )
+        return JSONResponse(content={"status": "success", "data": updated_user})
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"계정 정보 갱신 오류: {str(e)}")
 
 
 @app.get("/api/policies")

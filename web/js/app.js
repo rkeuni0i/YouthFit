@@ -292,6 +292,16 @@ function updateGlobalAuthHeader() {
 
     if (!user.name) return;
 
+    // If badge already exists, update name and title directly
+    const existingBadge = document.getElementById('header-user-badge-link');
+    if (existingBadge) {
+      existingBadge.innerHTML = `
+        <span class="material-symbols-outlined text-[15px]">account_circle</span>
+        <span>${user.name} 님</span>
+      `;
+      existingBadge.title = `${user.name} (${user.email}) - 프로필 및 계정 설정`;
+    }
+
     // 1. Replace login text links with Member Profile Badge
     const authLinks = document.querySelectorAll('a[href="auth.html"], a[href="auth"]');
     authLinks.forEach(link => {
@@ -299,7 +309,7 @@ function updateGlobalAuthHeader() {
         const container = document.createElement('div');
         container.className = 'flex items-center gap-2 text-xs font-semibold';
         container.innerHTML = `
-          <a href="dashboard.html" class="px-2.5 py-1 rounded-full bg-primary-fixed text-primary flex items-center gap-1 font-bold hover:bg-primary-fixed-dim transition-colors shadow-sm" title="${user.email}">
+          <a id="header-user-badge-link" href="profile.html" class="px-2.5 py-1 rounded-full bg-primary-fixed text-primary flex items-center gap-1 font-bold hover:bg-primary-fixed-dim transition-colors shadow-sm" title="${user.name} (${user.email}) - 프로필 및 계정 설정">
             <span class="material-symbols-outlined text-[15px]">account_circle</span>
             <span>${user.name} 님</span>
           </a>
@@ -309,8 +319,8 @@ function updateGlobalAuthHeader() {
         `;
         link.replaceWith(container);
       } else if (link.querySelector('.material-symbols-outlined')?.textContent.trim() === "person") {
-        link.title = `${user.name} (${user.email}) - 대시보드 이동`;
-        link.href = 'dashboard.html';
+        link.title = `${user.name} (${user.email}) - 프로필 및 계정 설정`;
+        link.href = 'profile.html';
         link.classList.add('ring-2', 'ring-primary', 'ring-offset-1');
       }
     });
