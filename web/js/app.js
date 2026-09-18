@@ -158,9 +158,32 @@ window.toggleTheme = toggleTheme;
 function updateGlobalAuthHeader() {
   try {
     const raw = localStorage.getItem('youthfit_user');
-    if (!raw) return;
+    const adminLink = document.getElementById('sidebar-admin-link');
+    if (!raw) {
+      if (adminLink) {
+        adminLink.classList.add('hidden');
+        adminLink.style.display = 'none';
+      }
+      return;
+    }
     const user = JSON.parse(raw);
-    if (!user || !user.name) return;
+    if (!user) return;
+
+    // Admin privileges check for sidebar admin monitoring button
+    if (adminLink) {
+      const uRole = (user.role || '').toLowerCase();
+      const uEmail = (user.email || '').toLowerCase();
+      const isAdmin = uRole === 'admin' || uEmail === 'admin@youthfit.kr' || uEmail.startsWith('admin@') || uEmail === 'admin';
+      if (isAdmin) {
+        adminLink.classList.remove('hidden');
+        adminLink.style.display = 'flex';
+      } else {
+        adminLink.classList.add('hidden');
+        adminLink.style.display = 'none';
+      }
+    }
+
+    if (!user.name) return;
 
     // 1. Replace login text links with Member Profile Badge
     const authLinks = document.querySelectorAll('a[href="auth.html"], a[href="auth"]');

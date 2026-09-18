@@ -101,7 +101,8 @@
         <span class="material-symbols-outlined text-[20px]">pending_actions</span>
         <span>전체 정책 탐색기 (706건)</span>
       </a>
-      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="admin.html">
+      <!-- 관리자 모니터링 메뉴 (관리자 권한 계정 로그인 시에만 동적 노출) -->
+      <a id="sidebar-admin-link" class="hidden items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="admin.html" style="display: none;">
         <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
         <span>관리자 모니터링</span>
       </a>
@@ -555,7 +556,7 @@
   </div>
 
   <!-- Scripts with Cache-Buster -->
-  <script src="js/app.js?v=20260918_v3"></script>
-  <script src="js/dashboard.js?v=20260918_v3"></script>
+  <script src="js/app.js?v=20260918_v4"></script>
+  <script src="js/dashboard.js?v=20260918_v4"></script>
 </body>
 </html>
