@@ -77,12 +77,57 @@ async function initGoogleOAuth() {
     if (json.status === 'success' && json.client_id) {
       googleClientId = json.client_id;
       if (window.google && window.google.accounts) {
+        // 1. OIDC ID Token Credential Init (One Tap & rendered buttons)
         google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleGoogleCredentialResponse,
           auto_select: false
         });
+
+        // 2. OAuth 2.0 Token Client for explicit button clicks
+        if (google.accounts.oauth2) {
+          googleTokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: googleClientId,
+            scope: 'openid email profile',
+            callback: async (tokenResponse) => {
+              if (tokenResponse && tokenResponse.access_token) {
+                try {
+                  const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                  });
+                  const userInfo = await userInfoRes.json();
+                  if (userInfo && userInfo.email) {
+                    await executeGoogleOAuthLogin({
+                      email: userInfo.email,
+                      name: userInfo.name || '구글 회원',
+                      google_id: userInfo.sub || ''
+                    });
+                  }
+                } catch (e) {
+                  console.error('Google userinfo fetch failed:', e);
+                  openGoogleModal();
+                }
+              }
+            }
+          });
+        }
+
+        const container = document.getElementById('google-gis-container');
+        if (container) {
+          google.accounts.id.renderButton(container, {
+            theme: 'outline',
+            size: 'large',
+            shape: 'pill',
+            width: 300,
+            text: 'signin_with'
+          });
+        }
       }
+      const hint = document.getElementById('google-client-id-hint');
+      if (hint) hint.classList.add('hidden');
+    } else {
+      const hint = document.getElementById('google-client-id-hint');
+      if (hint) hint.classList.remove('hidden');
     }
   } catch (err) {
     console.warn("Google OAuth config load failed:", err);
@@ -110,7 +155,17 @@ function closeGoogleModal() {
 
 // User clicked [Google 계정으로 계속하기]
 async function handleGoogleLogin() {
-  // If GIS SDK is configured with real client_id, open native One-Tap / OAuth popup
+  // 1. If OAuth 2.0 Token Client is initialized, trigger Google native OAuth popup
+  if (googleTokenClient) {
+    try {
+      googleTokenClient.requestAccessToken();
+      return;
+    } catch (e) {
+      console.warn("Token client request error:", e);
+    }
+  }
+
+  // 2. Fallback to GIS prompt or standard dialog
   if (window.google && window.google.accounts && googleClientId) {
     try {
       google.accounts.id.prompt((notification) => {
@@ -123,7 +178,6 @@ async function handleGoogleLogin() {
       console.warn("GIS prompt error:", e);
     }
   }
-  // Open Standard OAuth 2.0 Consent & Account Dialog
   openGoogleModal();
 }
 
