@@ -25,6 +25,8 @@ SQLITE_FALLBACK_PATH = os.path.join(
     "youthfit.db"
 )
 
+_fallback_warned = False
+
 def get_database_url():
     """
     환경 변수에서 데이터베이스 연결 문자열을 가져옵니다.
@@ -52,8 +54,15 @@ def get_connection(allow_sqlite_fallback=False):
     """
     url = get_database_url()
 
+    global _fallback_warned
     if is_postgres():
         if not PSYCOPG2_AVAILABLE:
+            if allow_sqlite_fallback:
+                if not _fallback_warned:
+                    print("[!] psycopg2 모듈 미설치로 SQLite 데이터베이스로 대체합니다.")
+                    _fallback_warned = True
+                os.makedirs(os.path.dirname(SQLITE_FALLBACK_PATH), exist_ok=True)
+                return sqlite3.connect(SQLITE_FALLBACK_PATH), "sqlite"
             raise RuntimeError(
                 "psycopg2 모듈이 설치되어 있지 않습니다.\n"
                 "다음 명령어로 설치해주세요: pip install psycopg2-binary"
@@ -63,7 +72,9 @@ def get_connection(allow_sqlite_fallback=False):
             return conn, "postgresql"
         except psycopg2.OperationalError as e:
             if allow_sqlite_fallback:
-                print(f"[!] PostgreSQL 연결 실패 ({e}). SQLite로 임시 대체합니다.")
+                if not _fallback_warned:
+                    print(f"[!] PostgreSQL 연결 실패 ({e}). SQLite로 임시 대체합니다.")
+                    _fallback_warned = True
                 os.makedirs(os.path.dirname(SQLITE_FALLBACK_PATH), exist_ok=True)
                 return sqlite3.connect(SQLITE_FALLBACK_PATH), "sqlite"
             else:
@@ -168,9 +179,6 @@ def init_db(conn=None):
         cur.execute("CREATE INDEX IF NOT EXISTS idx_category ON policies(category_large, category_mid);")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_name ON policies(name);")
         conn.commit()
-
-    if close_conn:
-        conn.close()
 
     return conn, db_type
 

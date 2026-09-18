@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>YouthFit AI - 통합 관리자 콘솔 (Admin Portal)</title>
+  <link rel="icon" type="image/x-icon" href="YouthFit-Logo/favicon/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="YouthFit-Logo/svg/youthfit-icon.svg">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  
+  <!-- Tailwind CSS Engine & External Custom Stylesheet -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "var(--surface)",
+            "surface-dim": "var(--surface-dim)",
+            "surface-bright": "var(--surface-bright)",
+            "surface-container-lowest": "var(--surface-container-lowest)",
+            "surface-container-low": "var(--surface-container-low)",
+            "surface-container": "var(--surface-container)",
+            "surface-container-high": "var(--surface-container-high)",
+            "surface-container-highest": "var(--surface-container-highest)",
+            "on-surface": "var(--on-surface)",
+            "on-surface-variant": "var(--on-surface-variant)",
+            "inverse-surface": "var(--inverse-surface)",
+            "inverse-on-surface": "var(--inverse-on-surface)",
+            "outline": "var(--outline)",
+            "outline-variant": "var(--outline-variant)",
+            "primary": "var(--primary)",
+            "primary-container": "var(--primary-container)",
+            "on-primary": "var(--on-primary)",
+            "on-primary-container": "var(--on-primary-container)",
+            "primary-fixed": "var(--primary-fixed)",
+            "primary-fixed-dim": "var(--primary-fixed-dim)",
+            "secondary": "var(--secondary)",
+            "secondary-container": "var(--secondary-container)",
+            "on-secondary": "var(--on-secondary)",
+            "on-secondary-container": "var(--on-secondary-container)",
+            "secondary-fixed": "var(--secondary-fixed)",
+            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
+            "tertiary": "var(--tertiary)",
+            "tertiary-container": "var(--tertiary-container)",
+            "error": "var(--error)",
+            "error-container": "var(--error-container)",
+            "hairline-border": "var(--hairline-border)",
+            "hairline-hover": "var(--hairline-hover)"
+          },
+          fontFamily: {
+            "body": ["Pretendard", "Plus Jakarta Sans", "sans-serif"],
+            "display": ["Plus Jakarta Sans", "Pretendard", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen antialiased transition-colors duration-200">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-hairline-border shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-hairline-border group-hover:bg-primary group-hover:text-on-primary transition-all">
+            <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-display font-extrabold text-sm tracking-tight text-on-surface">YouthFit Admin</span>
+            <span class="text-[10px] text-on-surface-variant font-mono">운영 및 지표 관제 콘솔</span>
+          </div>
+        </a>
+
+        <div class="hidden md:flex items-center gap-2 pl-4 border-l border-hairline-border">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+            <span>시스템 정상 가동 중</span>
+          </span>
+          <span class="text-xs text-on-surface-variant font-mono" id="last-sync-time">동기화: 방금 전</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Live Auto-refresh toggle -->
+        <label class="hidden sm:flex items-center gap-2 text-xs font-medium text-on-surface-variant cursor-pointer">
+          <input type="checkbox" id="auto-refresh-toggle" checked class="w-4 h-4 accent-primary rounded cursor-pointer">
+          <span>실시간 자동 갱신 (5초)</span>
+        </label>
+
+        <!-- Manual Refresh Button -->
+        <button onclick="loadAdminData()" id="refresh-btn" type="button" class="w-9 h-9 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-colors border border-hairline-border cursor-pointer shadow-sm" title="새로고침">
+          <span class="material-symbols-outlined text-[18px]">refresh</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" type="button" class="w-9 h-9 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-colors border border-hairline-border cursor-pointer shadow-sm" title="테마 변경">
+          <span class="material-symbols-outlined text-[18px] theme-icon text-primary">dark_mode</span>
+        </button>
+
+        <!-- Return to Dashboard -->
+        <a href="dashboard.html" class="px-3.5 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container text-xs font-bold transition-colors shadow-sm flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">space_dashboard</span>
+          <span>사용자 대시보드</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 pb-20">
+
+    <!-- KPI Metric Cards (4 Cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Card 1: 총 진단 실행 수 -->
+      <div class="p-5 rounded-2xl bg-surface-container-low border border-hairline-border shadow-sm flex flex-col justify-between space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-on-surface-variant">총 진단 실행 건수</span>
+          <div class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-display font-extrabold text-on-surface" id="kpi-diagnoses">0건</div>
+          <p class="text-[11px] text-secondary font-medium flex items-center gap-1 mt-1">
+            <span class="material-symbols-outlined text-[14px]">trending_up</span>
+            <span>청년 맞춤 추천 알고리즘 정상 연산</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2: 등록 및 활성 청년 사용자 -->
+      <div class="p-5 rounded-2xl bg-surface-container-low border border-hairline-border shadow-sm flex flex-col justify-between space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-on-surface-variant">누적 회원 및 활성 청년</span>
+          <div class="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">groups</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-display font-extrabold text-on-surface" id="kpi-users">0명</div>
+          <p class="text-[11px] text-on-surface-variant mt-1">
+            <span>게스트 일회성 진단 및 정회원 통합</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3: 웹 서비스 API 요청 수 -->
+      <div class="p-5 rounded-2xl bg-surface-container-low border border-hairline-border shadow-sm flex flex-col justify-between space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-on-surface-variant">웹 서비스 API 작동 처리</span>
+          <div class="w-8 h-8 rounded-xl bg-primary-fixed/30 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">cloud_sync</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-display font-extrabold text-on-surface" id="kpi-requests">0회</div>
+          <p class="text-[11px] text-on-surface-variant mt-1 flex items-center gap-1">
+            <span>평균 응답속도: </span>
+            <strong class="text-primary" id="kpi-response-time">0.0ms</strong>
+            <span>(성공률 <span id="kpi-success-rate">100%</span>)</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 4: 최다 매칭 인기 정책 -->
+      <div class="p-5 rounded-2xl bg-surface-container-low border border-hairline-border shadow-sm flex flex-col justify-between space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-on-surface-variant">최다 매칭 청년 정책</span>
+          <div class="w-8 h-8 rounded-xl bg-secondary-fixed/40 text-secondary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">star</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-base sm:text-lg font-display font-bold text-secondary truncate" id="kpi-top-policy">-</div>
+          <p class="text-[11px] text-on-surface-variant mt-1">
+            <span>가장 많은 청년이 선별받은 핵심 정책</span>
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-hairline-border pb-1 overflow-x-auto">
+      <button onclick="switchTab('popular')" id="tab-btn-popular" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-colors bg-primary text-on-primary cursor-pointer shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">leaderboard</span>
+        <span>많이 찾는 정책 데이터 분석</span>
+      </button>
+      <button onclick="switchTab('user-logs')" id="tab-btn-user-logs" class="px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm flex items-center gap-2 transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">person_celebrate</span>
+        <span>사용자 활동 로그</span>
+      </button>
+      <button onclick="switchTab('service-logs')" id="tab-btn-service-logs" class="px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm flex items-center gap-2 transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">terminal</span>
+        <span>웹 서비스 작동 로그</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: 많이 찾는 정책 데이터 (Popular Policies) -->
+    <div id="tab-content-popular" class="space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-container-low p-4 rounded-2xl border border-hairline-border">
+        <div>
+          <h3 class="text-base font-bold text-on-surface">실시간 청년 관심 정책 순위</h3>
+          <p class="text-xs text-on-surface-variant">진단 매칭 빈도 및 공식 신청 클릭 가중치를 반영한 랭킹</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="popular-search" placeholder="정책명 또는 카테고리 검색..." oninput="filterPopularTable()" class="px-3 py-1.5 rounded-xl bg-surface border border-hairline-border text-xs focus:ring-1 focus:ring-primary focus:outline-none w-52 sm:w-64">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-hairline-border bg-surface-container-lowest shadow-sm">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-surface-container border-b border-hairline-border text-on-surface-variant font-semibold">
+              <th class="py-3 px-4 w-16 text-center">순위</th>
+              <th class="py-3 px-4">정책명</th>
+              <th class="py-3 px-4">소관 / 분야</th>
+              <th class="py-3 px-4 text-center">진단 매칭수</th>
+              <th class="py-3 px-4 text-center">신청/상세 클릭</th>
+              <th class="py-3 px-4 text-center">종합 관심도 점수</th>
+              <th class="py-3 px-4 text-center">직결 링크 검증</th>
+            </tr>
+          </thead>
+          <tbody id="popular-tbody" class="divide-y divide-hairline-border">
+            <tr>
+              <td colspan="7" class="py-8 text-center text-on-surface-variant">데이터를 불러오는 중입니다...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: 사용자 활동 로그 (User Logs) -->
+    <div id="tab-content-user-logs" class="space-y-4 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-container-low p-4 rounded-2xl border border-hairline-border">
+        <div>
+          <h3 class="text-base font-bold text-on-surface">사용자 이용 활동 내역</h3>
+          <p class="text-xs text-on-surface-variant">회원가입, 로그인, 진단 조건 입력, 서류 확인, 외부 신청 이동 이력</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="user-log-filter" onchange="filterUserLogs()" class="px-3 py-1.5 rounded-xl bg-surface border border-hairline-border text-xs focus:outline-none">
+            <option value="">전체 활동 유형</option>
+            <option value="진단">맞춤진단 실행</option>
+            <option value="로그인">로그인/인증</option>
+            <option value="회원가입">회원가입</option>
+            <option value="신청">공식 신청 이동</option>
+            <option value="서류">서류발급</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-hairline-border bg-surface-container-lowest shadow-sm">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-surface-container border-b border-hairline-border text-on-surface-variant font-semibold">
+              <th class="py-3 px-4 w-20">ID</th>
+              <th class="py-3 px-4 w-40">기록 일시</th>
+              <th class="py-3 px-4 w-32">사용자</th>
+              <th class="py-3 px-4 w-32">활동 유형</th>
+              <th class="py-3 px-4">활동 세부 내용 (진단 조건 / 정책명)</th>
+              <th class="py-3 px-4 w-28">IP 주소</th>
+            </tr>
+          </thead>
+          <tbody id="user-logs-tbody" class="divide-y divide-hairline-border">
+            <tr>
+              <td colspan="6" class="py-8 text-center text-on-surface-variant">사용자 활동 기록이 아직 없습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: 웹 서비스 작동 로그 (Service Logs) -->
+    <div id="tab-content-service-logs" class="space-y-4 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-container-low p-4 rounded-2xl border border-hairline-border">
+        <div>
+          <h3 class="text-base font-bold text-on-surface">웹 서비스 API 작동 텔레메트리</h3>
+          <p class="text-xs text-on-surface-variant">실시간 HTTP 메서드, 호출 엔드포인트, 상태 코드, 레이턴시(ms)</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="service-log-filter" onchange="filterServiceLogs()" class="px-3 py-1.5 rounded-xl bg-surface border border-hairline-border text-xs focus:outline-none">
+            <option value="">전체 상태 코드</option>
+            <option value="success">성공 (2xx OK)</option>
+            <option value="error">오류 (4xx / 5xx)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-hairline-border bg-surface-container-lowest shadow-sm font-mono">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-surface-container border-b border-hairline-border text-on-surface-variant font-semibold font-body">
+              <th class="py-3 px-4 w-16">No</th>
+              <th class="py-3 px-4 w-40 font-body">발생 시각</th>
+              <th class="py-3 px-4 w-24">Method</th>
+              <th class="py-3 px-4">Endpoint Path</th>
+              <th class="py-3 px-4 w-24 text-center">Status</th>
+              <th class="py-3 px-4 w-24 text-right">소요시간</th>
+              <th class="py-3 px-4 w-28">Client IP</th>
+            </tr>
+          </thead>
+          <tbody id="service-logs-tbody" class="divide-y divide-hairline-border">
+            <tr>
+              <td colspan="7" class="py-8 text-center text-on-surface-variant font-body">서비스 작동 로그를 불러오는 중입니다...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JavaScript -->
+  <script src="js/app.js"></script>
+  <script>
+    let rawPopularPolicies = [];
+    let rawUserLogs = [];
+    let rawServiceLogs = [];
+    let autoRefreshTimer = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminData();
+
+      // Auto-refresh logic
+      const autoToggle = document.getElementById('auto-refresh-toggle');
+      if (autoToggle) {
+        autoToggle.addEventListener('change', () => {
+          if (autoToggle.checked) {
+            startAutoRefresh();
+          } else {
+            stopAutoRefresh();
+          }
+        });
+        if (autoToggle.checked) {
+          startAutoRefresh();
+        }
+      }
+    });
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      autoRefreshTimer = setInterval(() => {
+        loadAdminData(true);
+      }, 5000);
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+      }
+    }
+
+    // Load Admin Data from APIs
+    async function loadAdminData(silent = false) {
+      const refreshBtn = document.getElementById('refresh-btn');
+      if (!silent && refreshBtn) refreshBtn.classList.add('animate-spin');
+
+      try {
+        const [overviewRes, popularRes, userLogsRes, serviceLogsRes] = await Promise.all([
+          fetch('/api/admin/overview').then(r => r.json()).catch(() => null),
+          fetch('/api/admin/popular-policies?limit=50').then(r => r.json()).catch(() => null),
+          fetch('/api/admin/logs/user?limit=100').then(r => r.json()).catch(() => null),
+          fetch('/api/admin/logs/service?limit=100').then(r => r.json()).catch(() => null)
+        ]);
+
+        if (overviewRes && overviewRes.status === 'success') {
+          renderOverview(overviewRes.data.overview);
+        }
+
+        if (popularRes && popularRes.status === 'success') {
+          rawPopularPolicies = popularRes.data || [];
+          renderPopularTable(rawPopularPolicies);
+        }
+
+        if (userLogsRes && userLogsRes.status === 'success') {
+          rawUserLogs = userLogsRes.data || [];
+          renderUserLogs(rawUserLogs);
+        }
+
+        if (serviceLogsRes && serviceLogsRes.status === 'success') {
+          rawServiceLogs = serviceLogsRes.data || [];
+          renderServiceLogs(rawServiceLogs);
+        }
+
+        const syncEl = document.getElementById('last-sync-time');
+        if (syncEl) {
+          const now = new Date();
+          syncEl.textContent = `동기화: ${now.toLocaleTimeString()}`;
+        }
+
+      } catch (err) {
+        console.error("Admin data load error:", err);
+      } finally {
+        if (!silent && refreshBtn) refreshBtn.classList.remove('animate-spin');
+      }
+    }
+
+    // Render KPI Metrics
+    function renderOverview(overview) {
+      if (!overview) return;
+      document.getElementById('kpi-diagnoses').textContent = `${overview.total_diagnoses.toLocaleString()}건`;
+      document.getElementById('kpi-users').textContent = `${overview.total_users.toLocaleString()}명`;
+      document.getElementById('kpi-requests').textContent = `${overview.total_requests.toLocaleString()}회`;
+      document.getElementById('kpi-response-time').textContent = `${overview.avg_response_time_ms}ms`;
+      document.getElementById('kpi-success-rate').textContent = `${overview.success_rate}%`;
+      document.getElementById('kpi-top-policy').textContent = overview.top_policy || '-';
+    }
+
+    // Render Popular Policies Table
+    function renderPopularTable(policies) {
+      const tbody = document.getElementById('popular-tbody');
+      if (!tbody) return;
+
+      if (!policies || policies.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-on-surface-variant">아직 수집된 정책 통계가 없습니다. 진단을 실행하면 자동으로 누적됩니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = policies.map((p, idx) => {
+        const rankColor = idx === 0 
+          ? 'bg-amber-500/20 text-amber-600 font-extrabold' 
+          : idx === 1 
+            ? 'bg-slate-400/20 text-slate-600 font-bold' 
+            : idx === 2 
+              ? 'bg-amber-700/20 text-amber-800 font-bold' 
+              : 'bg-surface-container text-on-surface-variant';
+
+        return `
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="py-3 px-4 text-center">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full ${rankColor} text-xs font-mono">
+                ${idx + 1}
+              </span>
+            </td>
+            <td class="py-3 px-4 font-bold text-on-surface">
+              ${p.policy_name}
+              <span class="block text-[10px] font-mono text-outline font-normal">${p.policy_id}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-[11px]">${p.category}</span>
+            </td>
+            <td class="py-3 px-4 text-center font-semibold text-primary font-mono">${p.matches_count}회</td>
+            <td class="py-3 px-4 text-center font-semibold text-secondary font-mono">${p.clicks_count}회</td>
+            <td class="py-3 px-4 text-center">
+              <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-mono font-bold text-xs">${p.score}점</span>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <a href="/dashboard.html" class="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-xs font-medium text-primary inline-flex items-center gap-1 transition-colors">
+                <span>대시보드 확인</span>
+                <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Filter Popular Policies
+    function filterPopularTable() {
+      const q = (document.getElementById('popular-search').value || '').toLowerCase().trim();
+      const filtered = rawPopularPolicies.filter(p => 
+        (p.policy_name || '').toLowerCase().includes(q) || 
+        (p.category || '').toLowerCase().includes(q) ||
+        (p.policy_id || '').toLowerCase().includes(q)
+      );
+      renderPopularTable(filtered);
+    }
+
+    // Render User Activity Logs
+    function renderUserLogs(logs) {
+      const tbody = document.getElementById('user-logs-tbody');
+      if (!tbody) return;
+
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-on-surface-variant">사용자 활동 기록이 아직 없습니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(l => {
+        let actionBadgeColor = 'bg-surface-container text-on-surface';
+        if (l.action.includes('진단')) actionBadgeColor = 'bg-primary/10 text-primary border border-primary/20';
+        else if (l.action.includes('로그인') || l.action.includes('가입')) actionBadgeColor = 'bg-secondary/10 text-secondary border border-secondary/20';
+        else if (l.action.includes('신청') || l.action.includes('이동')) actionBadgeColor = 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
+
+        return `
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="py-2.5 px-4 font-mono text-outline">#${l.id}</td>
+            <td class="py-2.5 px-4 text-on-surface-variant font-mono text-[11px]">${l.created_at}</td>
+            <td class="py-2.5 px-4 font-medium text-on-surface">${l.user_name || l.user_email || '게스트'}</td>
+            <td class="py-2.5 px-4">
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${actionBadgeColor}">
+                ${l.action}
+              </span>
+            </td>
+            <td class="py-2.5 px-4 text-on-surface leading-relaxed text-[11px]">${l.details || '-'}</td>
+            <td class="py-2.5 px-4 font-mono text-[11px] text-outline">${l.ip_address || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterUserLogs() {
+      const val = document.getElementById('user-log-filter').value;
+      if (!val) {
+        renderUserLogs(rawUserLogs);
+      } else {
+        const filtered = rawUserLogs.filter(l => (l.action || '').includes(val));
+        renderUserLogs(filtered);
+      }
+    }
+
+    // Render Web Service Operation Logs
+    function renderServiceLogs(logs) {
+      const tbody = document.getElementById('service-logs-tbody');
+      if (!tbody) return;
+
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-on-surface-variant font-body">서비스 작동 로그가 아직 없습니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(l => {
+        const is2xx = l.status_code >= 200 && l.status_code < 300;
+        const is4xx = l.status_code >= 400 && l.status_code < 500;
+        const statusColor = is2xx 
+          ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' 
+          : is4xx 
+            ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20' 
+            : 'bg-rose-500/10 text-rose-600 border border-rose-500/20';
+
+        const methodColor = l.method === 'POST' ? 'text-primary font-bold' : 'text-secondary font-bold';
+
+        return `
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="py-2 px-4 text-outline text-[11px]">#${l.id}</td>
+            <td class="py-2 px-4 text-on-surface-variant text-[11px] font-body">${l.created_at}</td>
+            <td class="py-2 px-4 ${methodColor}">${l.method}</td>
+            <td class="py-2 px-4 text-on-surface font-semibold truncate max-w-xs sm:max-w-md">${l.path}</td>
+            <td class="py-2 px-4 text-center">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${statusColor}">
+                ${l.status_code}
+              </span>
+            </td>
+            <td class="py-2 px-4 text-right ${l.duration_ms > 200 ? 'text-amber-500' : 'text-on-surface-variant'}">${l.duration_ms}ms</td>
+            <td class="py-2 px-4 text-outline text-[11px]">${l.client_ip || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterServiceLogs() {
+      const val = document.getElementById('service-log-filter').value;
+      if (!val) {
+        renderServiceLogs(rawServiceLogs);
+      } else if (val === 'success') {
+        renderServiceLogs(rawServiceLogs.filter(l => l.status_code < 400));
+      } else if (val === 'error') {
+        renderServiceLogs(rawServiceLogs.filter(l => l.status_code >= 400));
+      }
+    }
+
+    // Tab Switching
+    function switchTab(tab) {
+      const tabs = ['popular', 'user-logs', 'service-logs'];
+      tabs.forEach(t => {
+        const content = document.getElementById(`tab-content-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tab) {
+          content.classList.remove('hidden');
+          btn.className = "px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-colors bg-primary text-on-primary cursor-pointer shadow-sm";
+        } else {
+          content.classList.add('hidden');
+          btn.className = "px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm flex items-center gap-2 transition-colors text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer";
+        }
+      });
+    }
+  </script>
+</body>
+</html>

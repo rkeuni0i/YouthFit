@@ -109,6 +109,35 @@ document.addEventListener('DOMContentLoaded', () => {
       statDocsCount.textContent = `${data.docs_count}건`;
     }
 
+    // Sidebar Score sync
+    const sidebarScore = document.getElementById('sidebar-match-score');
+    if (sidebarScore && currentPolicies.length > 0) {
+      sidebarScore.textContent = `${currentPolicies[0].match_rate || 92}% 일치`;
+    }
+
+    // Dynamic Urgent Deadlines Count
+    const urgentCount = currentPolicies.filter(p => getDeadlineInfo(p.apply_period).isUrgent).length;
+    const heroUrgentBadge = document.getElementById('hero-urgent-badge');
+    const heroUrgentText = document.getElementById('hero-urgent-text');
+    const heroUrgentIcon = document.getElementById('hero-urgent-icon');
+    if (heroUrgentBadge && heroUrgentText) {
+      if (urgentCount > 0) {
+        heroUrgentBadge.className = "flex items-center gap-2 px-4 py-2 rounded-xl bg-error-container text-on-error-container shadow-sm";
+        if (heroUrgentIcon) {
+          heroUrgentIcon.className = "material-symbols-outlined text-[16px] text-error";
+          heroUrgentIcon.textContent = "alarm";
+        }
+        heroUrgentText.innerHTML = `마감 임박 <strong id="stat-urgent-count">${urgentCount}건</strong>`;
+      } else {
+        heroUrgentBadge.className = "flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container text-on-surface shadow-sm border border-hairline-border";
+        if (heroUrgentIcon) {
+          heroUrgentIcon.className = "material-symbols-outlined text-[16px] text-secondary";
+          heroUrgentIcon.textContent = "check_circle";
+        }
+        heroUrgentText.innerHTML = `마감 임박 <strong>0건 (여유)</strong>`;
+      }
+    }
+
     // 3. Render Dynamic Policy Cards
     if (currentPolicies.length > 0 && policyContainer) {
       renderPolicyCards(currentPolicies);
@@ -118,6 +147,74 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.checklist && data.checklist.length > 0 && docList) {
       renderChecklist(data.checklist);
     }
+  }
+
+  // Helper: Dynamic Deadline Info Calculation (No more hardcoded fake D-5)
+  function getDeadlineInfo(periodStr) {
+    if (!periodStr) {
+      return {
+        badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium"><span class="material-symbols-outlined text-[14px] text-secondary">check_circle</span><span>연중 상시 신청 가능</span></div>`,
+        isUrgent: false
+      };
+    }
+
+    const str = String(periodStr).trim();
+    if (str.includes('상시') || str.includes('연중') || str.includes('수시') || str.includes('매월')) {
+      return {
+        badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-semibold"><span class="material-symbols-outlined text-[14px]">all_inclusive</span><span>연중 상시 신청 가능</span></div>`,
+        isUrgent: false
+      };
+    }
+
+    // Parse date: ~ YYYY.MM.DD or ~ YYYY-MM-DD or ~ YYYYMMDD
+    let endDate = null;
+    const matchDots = str.match(/~\s*(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/);
+    const matchCompact = str.match(/~\s*(\d{4})(\d{2})(\d{2})/);
+
+    if (matchDots) {
+      endDate = new Date(parseInt(matchDots[1]), parseInt(matchDots[2]) - 1, parseInt(matchDots[3]), 23, 59, 59);
+    } else if (matchCompact) {
+      endDate = new Date(parseInt(matchCompact[1]), parseInt(matchCompact[2]) - 1, parseInt(matchCompact[3]), 23, 59, 59);
+    }
+
+    if (endDate && !isNaN(endDate.getTime())) {
+      const now = new Date();
+      const diffMs = endDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        return {
+          badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-medium"><span class="material-symbols-outlined text-[14px]">event_busy</span><span>접수 마감</span></div>`,
+          isUrgent: false
+        };
+      } else if (diffDays === 0) {
+        return {
+          badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error text-on-error text-xs font-bold animate-pulse"><span class="material-symbols-outlined text-[14px]">alarm</span><span>D-Day 오늘 마감!</span></div>`,
+          isUrgent: true
+        };
+      } else if (diffDays <= 7) {
+        return {
+          badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-xs font-bold"><span class="material-symbols-outlined text-[14px]">timer</span><span>D-${diffDays} 마감 임박</span></div>`,
+          isUrgent: true
+        };
+      } else if (diffDays <= 30) {
+        return {
+          badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container text-xs font-semibold"><span class="material-symbols-outlined text-[14px]">schedule</span><span>D-${diffDays} 접수 중</span></div>`,
+          isUrgent: false
+        };
+      } else {
+        const cleanPeriod = str.split('(')[0].trim();
+        return {
+          badge: `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium"><span class="material-symbols-outlined text-[14px]">calendar_today</span><span>${cleanPeriod}</span></div>`,
+          isUrgent: false
+        };
+      }
+    }
+
+    return {
+      badge: `<span class="text-xs text-on-surface-variant font-medium">${str}</span>`,
+      isUrgent: false
+    };
   }
 
   // Helper: Render Policy Cards
@@ -140,12 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
           ? 'bg-secondary text-on-secondary' 
           : 'bg-surface-container text-on-surface';
 
-      const deadlineBadge = isFirst 
-        ? `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-xs font-semibold">
-             <span class="material-symbols-outlined text-[14px]">timer</span>
-             <span>D-5 마감 임박</span>
-           </div>`
-        : `<span class="text-xs text-on-surface-variant">${p.apply_period || '연중 상시 신청'}</span>`;
+      // 정밀 계산된 마감일 뱃지 적용 (D-5 하드코딩 제거)
+      const deadlineInfo = getDeadlineInfo(p.apply_period);
+      const deadlineBadge = deadlineInfo.badge;
 
       const reasonsList = (p.reasons || []).map(r => `
         <span class="flex items-center gap-1">
@@ -197,11 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
               <span>신청기간: ${p.apply_period}</span>
             </div>
             <div class="flex items-center gap-2">
-              <button class="px-3.5 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm border border-hairline-border" onclick="openPolicyModal(${idx})" type="button">
+              <button class="px-3.5 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm border border-hairline-border cursor-pointer" onclick="openPolicyModal(${idx})" type="button">
                 <span class="material-symbols-outlined text-[16px]">article</span>
                 <span>공고문 AI 요약본</span>
               </button>
-              <a class="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm" href="${p.apply_url}" target="_blank">
+              <a class="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container text-xs font-bold transition-colors flex items-center gap-1.5 shadow-sm" href="${p.apply_url}" target="_blank" onclick="trackPolicyClick('${(p.policy_id || p.name).replace(/'/g, "\\'")}', '${p.name.replace(/'/g, "\\'")}', '${p.category.replace(/'/g, "\\'")}', 'apply')">
                 <span>신청 바로가기</span>
                 <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
               </a>
@@ -214,14 +308,15 @@ document.addEventListener('DOMContentLoaded', () => {
     policyContainer.innerHTML = headerHtml + cardsHtml;
   }
 
-  // Helper: Render Document Checklist
+  // Helper: Render Document Checklist (1:1 Service Page Mapping)
   function renderChecklist(items) {
     docList.innerHTML = items.map((doc, i) => {
       const isChecked = i === 0; // First pre-checked
+      const actionLabel = doc.action_label || '정부24 무료 즉시 발급';
       const linkHtml = doc.link 
         ? `<div class="pt-1">
-             <a class="inline-flex items-center gap-1 text-xs text-primary hover:underline" href="${doc.link}" target="_blank">
-               <span>정부24 무료 즉시 발급</span>
+             <a class="inline-flex items-center gap-1 text-xs text-primary hover:underline font-semibold" href="${doc.link}" target="_blank" onclick="trackDocClick('${doc.name.replace(/'/g, "\\'")}')">
+               <span>${actionLabel}</span>
                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
              </a>
            </div>`
@@ -285,10 +380,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Modal Open Handler
+  // Policy Click & View Tracking Telemetry
+  window.trackPolicyClick = function(id, name, cat, actionType) {
+    try {
+      fetch('/api/stats/policy-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          policy_id: String(id || name),
+          policy_name: name || '',
+          category: cat || '',
+          action_type: actionType || 'click'
+        })
+      }).catch(() => {});
+    } catch (e) {}
+  };
+
+  window.trackDocClick = function(docName) {
+    try {
+      fetch('/api/stats/policy-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          policy_id: "DOC_ISSUANCE",
+          policy_name: docName,
+          category: "서류발급",
+          action_type: "document"
+        })
+      }).catch(() => {});
+    } catch (e) {}
+  };
+
+  // Modal Open Handler (Direct Application Page Binding)
   window.openPolicyModal = function(index) {
     const p = currentPolicies[index];
     if (!p || !modal) return;
+
+    // Track modal open
+    trackPolicyClick(p.policy_id || p.name, p.name, p.category, 'modal_open');
 
     document.getElementById('modal-rank').textContent = p.rank_label;
     document.getElementById('modal-category').textContent = p.category;
@@ -307,6 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyLink = document.getElementById('modal-apply-link');
     if (applyLink) {
       applyLink.href = p.apply_url || 'https://youth.seoul.go.kr';
+      applyLink.onclick = () => {
+        trackPolicyClick(p.policy_id || p.name, p.name, p.category, 'apply');
+      };
     }
 
     modal.classList.remove('hidden');

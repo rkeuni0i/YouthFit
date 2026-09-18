@@ -157,21 +157,103 @@ def parse_required_docs(policy):
 
     return results
 
+def get_gov24_link_info(doc_name, policy_url=None):
+    """
+    각 증빙서류별 1:1 전용 발급/확인 페이지 URL 및 버튼 라벨 반환
+    (메인 포털이 아닌 각 민원 고유 신청 페이지 CappBizCD로 직접 연결)
+    """
+    doc = (doc_name or "").strip()
+    
+    # 1. 주민등록표초본
+    if any(kw in doc for kw in ["초본", "주민등록표초본", "주민등록초본"]):
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000015",
+            "action_label": "정부24 초본 무료 즉시 발급"
+        }
+    # 2. 주민등록표등본
+    if any(kw in doc for kw in ["등본", "주민등록표등본", "주민등록등본"]):
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000015",
+            "action_label": "정부24 등본 무료 즉시 발급"
+        }
+        
+    # 3. 최종학력 졸업증명서 / 재학증명서
+    if any(kw in doc for kw in ["졸업증명", "학력", "수료증", "졸업증명서"]):
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13404000001",
+            "action_label": "정부24 대학 졸업증명서 발급"
+        }
+    if "재학" in doc:
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13404000002",
+            "action_label": "정부24 재학증명서 발급"
+        }
+
+    # 4. 고용보험 피보험자격 이력내역서 (정부24 전용 직결 민원)
+    if any(kw in doc for kw in ["고용보험", "피보험자격", "산재보험", "이력내역서"]):
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=14900000065",
+            "action_label": "정부24 고용보험 이력내역서 발급"
+        }
+
+    # 5. 소득금액증명원
+    if any(kw in doc for kw in ["소득금액", "원천징수", "소득증빙", "소득세"]):
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=12100000021",
+            "action_label": "정부24 소득금액증명 즉시 발급"
+        }
+
+    # 6. 건강보험자격득실확인서 / 납부확인서
+    if any(kw in doc for kw in ["건강보험", "자격득실", "보험료 납부"]):
+        return {
+            "link": "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=14700000040",
+            "action_label": "정부24 건강보험자격득실 발급"
+        }
+
+    # 7. 가족관계증명서 (대법원 전자가족관계등록시스템 직결)
+    if "가족관계" in doc:
+        return {
+            "link": "https://efamily.scourt.go.kr/pt/PtFrnList.do",
+            "action_label": "전자가족관계등록부 무료 발급"
+        }
+
+    # 8. 참여 신청서 및 개인정보제공동의서
+    if any(kw in doc for kw in ["신청서", "동의서", "자가진단표", "계획서"]):
+        target_link = policy_url if policy_url and policy_url.startswith("http") else "https://youth.seoul.go.kr"
+        return {
+            "link": target_link,
+            "action_label": "공식 온라인 참여신청서 작성"
+        }
+
+    # 9. 근로계약서 사본
+    if any(kw in doc for kw in ["근로계약서", "재직증명"]):
+        return {
+            "link": "https://www.moel.go.kr/info/defaulForm/defaultFormList.do",
+            "action_label": "고용노동부 표준계약서 서식 확인"
+        }
+
+    # 10. 임대차계약서 / 확정일자
+    if any(kw in doc for kw in ["임대차", "확정일자", "전월세계약"]):
+        return {
+            "link": "http://www.iros.go.kr/pos1/jsp/irr/IRRViewEInf.jsp",
+            "action_label": "대법원 인터넷등기소 확정일자 확인"
+        }
+
+    # 11. 통장사본 / 이체확인증
+    if any(kw in doc for kw in ["통장", "이체", "입금확인"]):
+        return {
+            "link": "https://www.gov.kr",
+            "action_label": "주거래은행 금융거래확인서 발급"
+        }
+
+    return {
+        "link": "https://www.gov.kr",
+        "action_label": "정부24 무료 즉시 발급"
+    }
+
 def get_gov24_link(doc_name):
-    """정부24 및 공공기관 발급 서류 링크 반환"""
-    gov24_keywords = ["주민등록", "등본", "초본", "가족관계", "소득금액", "건강보험", "졸업증명", "재학증명"]
-    for kw in gov24_keywords:
-        if kw in doc_name:
-            return "https://www.gov.kr"
-    comwel_keywords = ["고용보험", "피보험자격", "산재보험"]
-    for kw in comwel_keywords:
-        if kw in doc_name:
-            return "https://total.comwel.or.kr"
-    hometax_keywords = ["소득금액증명", "원천징수", "사업자등록증"]
-    for kw in hometax_keywords:
-        if kw in doc_name:
-            return "https://www.hometax.go.kr"
-    return "https://www.gov.kr"
+    """하위 호환용 단일 URL 반환 함수"""
+    return get_gov24_link_info(doc_name)["link"]
 
 # 전국 17개 광역시·도 매핑 테이블
 KOREA_REGIONS = [
@@ -283,6 +365,43 @@ def resolve_user_region(profile):
         return "전국", "전국 공통", "전국"
 
     return "서울", "서울특별시", raw_district or "관악구"
+
+def check_policy_date_validity(apply_period: str) -> bool:
+    """
+    신청기간 문자열을 검토하여 현재(오늘) 기준으로 유효한 정책인지 판별합니다.
+    - '연중 상시', '상시', '수시', '매월' 등은 항상 유효(True)
+    - 마감일이 명시되어 있고 이미 지난 과거 날짜(예: 2025년 이전 등)이면 False
+    """
+    if not apply_period:
+        return True
+    
+    period = apply_period.strip()
+    if any(kw in period for kw in ["상시", "연중", "수시", "매월"]):
+        return True
+        
+    import datetime
+    today = datetime.date.today()
+    
+    # 예: ~ 2025.03.18 또는 ~ 2025-03-18
+    match = re.search(r'~\s*(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})', period)
+    if match:
+        try:
+            end_date = datetime.date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+            if end_date < today:
+                return False
+        except Exception:
+            pass
+            
+    match_compact = re.search(r'~\s*(\d{4})(\d{2})(\d{2})', period)
+    if match_compact:
+        try:
+            end_date = datetime.date(int(match_compact.group(1)), int(match_compact.group(2)), int(match_compact.group(3)))
+            if end_date < today:
+                return False
+        except Exception:
+            pass
+
+    return True
 
 def diagnose_policies(profile):
     """
@@ -492,6 +611,11 @@ def diagnose_policies(profile):
                 score += 18
                 reasons.append("희망두배 청년통장 소득요건(140% 이하) 부합")
 
+        # 마감일 유효성 검증 (과거에 마감된 정책은 감점하여 오늘 기준 유효 정책 우선 매칭)
+        apply_p = p.get("apply_period") or ""
+        if not check_policy_date_validity(apply_p):
+            score -= 50
+
         # 적합도(Match Rate) 산정 (최대 99%, 최소 55%)
         match_rate = max(55, min(score, 99))
         amount, amount_desc = parse_benefit_amount(p)
@@ -513,19 +637,23 @@ def diagnose_policies(profile):
     top_candidates = scored_candidates[:4]
     total_benefit = sum(item["amount"] for item in top_candidates)
 
-    # 서류 체크리스트 집계
+    # 서류 체크리스트 집계 (1:1 맞춤 발급 링크 및 고유 버튼 문구 바인딩)
     checklist_set = set()
     checklist = []
     for item in top_candidates:
+        item_policy = item["policy"]
+        pol_url = item_policy.get("apply_url") or "https://youth.seoul.go.kr"
         for doc in item["docs"]:
             clean_name = re.sub(r'\(.*?\)', '', doc).strip()
             if clean_name and clean_name not in checklist_set:
                 checklist_set.add(clean_name)
+                info = get_gov24_link_info(doc, pol_url)
                 checklist.append({
                     "name": doc,
                     "clean_name": clean_name,
-                    "link": get_gov24_link(doc),
-                    "policy_name": item["policy"].get("name", "")
+                    "link": info["link"],
+                    "action_label": info["action_label"],
+                    "policy_name": item_policy.get("name", "")
                 })
 
     matched_cards = []
@@ -538,7 +666,39 @@ def diagnose_policies(profile):
         rank_label = rank_labels[i] if i < len(rank_labels) else f"적격 {i+1}순위"
         
         apply_period = p.get("apply_period") or "연중 상시 신청 가능"
-        apply_url = p.get("apply_url") or "https://www.youthcenter.go.kr"
+        apply_url = p.get("apply_url") or ""
+
+        # 메인 포털 대신 각 정책 고유의 상세/신청 직결 페이지 URL 보정
+        if not apply_url or apply_url in ["https://www.youthcenter.go.kr", "https://youthcenter.go.kr", "https://youth.seoul.go.kr"]:
+            pol_id = str(p.get("policy_id") or "")
+            if pol_id == "SEOUL-001":
+                apply_url = "https://youth.seoul.go.kr/youthConts.do?key=200"
+            elif pol_id == "SEOUL-002":
+                apply_url = "https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=WLF00004661"
+            elif pol_id == "SEOUL-003":
+                apply_url = "https://youth.seoul.go.kr/youthConts.do?key=2024102900001"
+            elif pol_id == "SEOUL-004":
+                apply_url = "https://account.welfare.seoul.kr/"
+            elif pol_id == "SEOUL-005":
+                apply_url = "https://housing.seoul.go.kr/site/main/content/sh01_060500"
+            elif pol_id == "SEOUL-006":
+                apply_url = "https://job.seoul.go.kr/www/jobWing/jobWingIntro.do"
+            elif pol_id == "SEOUL-007":
+                apply_url = "https://youth.seoul.go.kr/youthConts.do?key=2024102900003"
+            elif pol_id == "SEOUL-008":
+                apply_url = "https://youth.seoul.go.kr/youthConts.do?key=2024102900004"
+            elif pol_id == "NAT-001":
+                apply_url = "https://www.work24.go.kr/cm/c/a/0110/selectEmpSptPlcyDtl.do"
+            elif pol_id == "NAT-002":
+                apply_url = "https://ylaccount.kinfa.or.kr/main"
+            elif pol_id == "NAT-003":
+                apply_url = "https://korea-pass.kr/info/info_intro.do"
+            elif pol_id == "LOCAL-GWANAK-01":
+                apply_url = "https://www.gwanak.go.kr/site/gwanak/04/10403010100002020082705.jsp"
+            elif pol_id:
+                apply_url = f"https://www.youthcenter.go.kr/youngPlcyUnif/youngPlcyUnifDtl.do?bizId={pol_id}"
+            else:
+                apply_url = "https://youth.seoul.go.kr"
 
         # AI 자격 판별 알고리즘 리포트 문장
         if item["reasons"]:

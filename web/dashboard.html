@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>유스핏 AI - 맞춤 진단 결과 대시보드</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="icon" type="image/svg+xml" href="assets/logo/svg/youthfit-icon.svg">
+  <link rel="icon" type="image/x-icon" href="YouthFit-Logo/favicon/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="YouthFit-Logo/svg/youthfit-icon.svg">
   
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,8 +82,8 @@
     <!-- Brand Logo -->
     <div class="px-6 mb-8 flex items-center">
       <a class="inline-block group" href="index.html" title="YouthFit AI 홈으로 이동">
-        <img src="assets/logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-8 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
-        <img src="assets/logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-8 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
+        <img src="YouthFit-Logo/svg/youthfit-logo-primary.svg" alt="YouthFit AI" class="h-8 w-auto dark:hidden transition-transform duration-200 group-hover:scale-[1.02]">
+        <img src="YouthFit-Logo/svg/youthfit-logo-darkbg.svg" alt="YouthFit AI" class="h-8 w-auto hidden dark:block transition-transform duration-200 group-hover:scale-[1.02]">
       </a>
     </div>
 
@@ -102,20 +102,29 @@
         <span>전체 정책 탐색기 (706건)</span>
       </a>
       <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="diagnosis.html">
-        <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
-        <span>내 조건 변경 진단</span>
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors text-sm font-medium" href="admin.html">
+        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+        <span>관리자 모니터링</span>
       </a>
     </nav>
 
-    <!-- Bottom Score Card -->
-    <div class="px-4 mt-auto pt-4">
-      <div class="p-3 rounded-xl bg-surface-container flex items-center justify-between border border-hairline-border">
+    <!-- Bottom Score Card & Sidebar Theme Switcher -->
+    <div class="px-4 mt-auto pt-4 pb-6 space-y-2.5">
+      <div class="p-3.5 rounded-xl bg-surface-container flex items-center justify-between border border-hairline-border shadow-sm">
         <div class="flex flex-col">
-          <span class="text-xs text-on-surface-variant">진단 적합도 점수</span>
-          <span class="text-lg font-display text-secondary font-bold">92% 일치</span>
+          <span class="text-xs text-on-surface-variant font-medium">진단 적합도 점수</span>
+          <span class="text-lg font-display text-secondary font-bold" id="sidebar-match-score">92% 일치</span>
         </div>
         <span class="material-symbols-outlined text-secondary text-2xl">auto_awesome</span>
       </div>
+
+      <button class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-surface-container/60 hover:bg-surface-container text-on-surface transition-colors border border-hairline-border text-xs font-semibold cursor-pointer shadow-sm" onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px] theme-icon text-primary">dark_mode</span>
+          <span class="theme-toggle-label">다크 모드</span>
+        </span>
+        <span class="text-[10px] text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded font-mono">Theme</span>
+      </button>
     </div>
   </aside>
 
@@ -181,9 +190,9 @@
                   <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
                   <span class="text-xs font-medium">서류 패키지 <strong class="text-secondary font-bold" id="stat-docs-count">3건</strong></span>
                 </div>
-                <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-error-container text-on-error-container shadow-sm">
-                  <span class="material-symbols-outlined text-[16px] text-error">alarm</span>
-                  <span class="text-xs font-semibold">마감 임박 <strong>1건</strong></span>
+                <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container text-on-surface shadow-sm border border-hairline-border transition-colors" id="hero-urgent-badge">
+                  <span class="material-symbols-outlined text-[16px] text-secondary" id="hero-urgent-icon">event_available</span>
+                  <span class="text-xs font-semibold" id="hero-urgent-text">마감 임박 <strong id="stat-urgent-count">0건</strong></span>
                 </div>
               </div>
             </div>
@@ -453,11 +462,6 @@
 
       </div>
     </main>
-  <!-- Floating Quick Theme Switcher -->
-  <button class="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest/90 hover:bg-surface-container text-on-surface shadow-lg border border-hairline-border backdrop-blur-md transition-all active:scale-95 cursor-pointer text-xs font-bold" onclick="toggleTheme()" type="button" title="테마 변경 (다크/라이트)">
-    <span class="material-symbols-outlined text-[18px] theme-icon text-primary">dark_mode</span>
-    <span class="theme-toggle-label">다크 모드</span>
-  </button>
 
   <!-- Policy Detail / Summary Modal -->
   <div class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm transition-opacity" id="policy-modal">

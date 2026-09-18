@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +12,7 @@ from pydantic import BaseModel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 from scripts import db_connection
 from services.diagnosis_engine import diagnose_policies, get_all_policies
+from services import admin_service
 
 app = FastAPI(
     title="YouthFit AI - 청년 복지 정책 AI 비서",
@@ -27,20 +29,62 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 웹 서비스 작동 로그 자동 수집 미들웨어
+@app.middleware("http")
+async def log_requests_middleware(request: Request, call_next):
+    start_time = time.time()
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    response = None
+    error_msg = None
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as exc:
+        error_msg = str(exc)
+        raise exc
+    finally:
+        duration_ms = (time.time() - start_time) * 1000
+        status_code = response.status_code if response else 500
+        path = request.url.path
+        # 정적 이미지/에셋 제외하고 웹 서비스 작동 및 API 요청만 기록
+        if not any(path.startswith(p) for p in ["/css", "/js", "/assets", "/YouthFit-Logo", "/favicon.ico"]):
+            admin_service.log_service_request(
+                method=request.method,
+                path=path,
+                status_code=status_code,
+                duration_ms=duration_ms,
+                client_ip=client_ip,
+                error_msg=error_msg
+            )
+
 # 1. 정적 에셋 서빙 마운트
 web_dir = os.path.join(BASE_DIR, "web")
 css_dir = os.path.join(web_dir, "css")
 js_dir = os.path.join(web_dir, "js")
+assets_dir = os.path.join(web_dir, "assets")
 data_dir = os.path.join(BASE_DIR, "data")
+logo_dir = os.path.join(BASE_DIR, "YouthFit-Logo")
 
 if os.path.exists(css_dir):
     app.mount("/css", StaticFiles(directory=css_dir), name="css")
 if os.path.exists(js_dir):
     app.mount("/js", StaticFiles(directory=js_dir), name="js")
+if os.path.exists(assets_dir):
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 if os.path.exists(data_dir):
     app.mount("/data", StaticFiles(directory=data_dir), name="data")
+if os.path.exists(logo_dir):
+    app.mount("/YouthFit-Logo", StaticFiles(directory=logo_dir), name="YouthFit-Logo")
 
-# 2. HTML 웹 페이지 라우팅
+# 2. HTML 웹 페이지 및 정적 에셋 라우팅
+@app.get("/favicon.ico")
+async def serve_favicon():
+    fav_path = os.path.join(web_dir, "favicon.ico")
+    if os.path.exists(fav_path):
+        return FileResponse(fav_path)
+    return JSONResponse(status_code=404, content={"detail": "Favicon not found"})
+
+app.mount("/web", StaticFiles(directory=web_dir, html=True), name="web")
 @app.get("/")
 @app.get("/index.html")
 async def serve_index():
@@ -71,6 +115,11 @@ async def serve_auth():
 async def serve_explorer():
     return FileResponse(os.path.join(web_dir, "explorer.html"))
 
+@app.get("/admin")
+@app.get("/admin.html")
+async def serve_admin():
+    return FileResponse(os.path.join(web_dir, "admin.html"))
+
 # 3. REST API 정의
 class DiagnosisRequest(BaseModel):
     age: int = 24
@@ -82,13 +131,30 @@ class DiagnosisRequest(BaseModel):
     income: str = "income60"
 
 @app.post("/api/diagnose")
-async def api_diagnose(req: DiagnosisRequest):
+async def api_diagnose(req: DiagnosisRequest, request: Request):
     """
     1분 맞춤 문진 데이터를 받아 AI 판별 및 수혜액/체크리스트 리포트를 반환합니다.
     """
     try:
         profile = req.model_dump()
         result = diagnose_policies(profile)
+        
+        # 사용자 활동 로그 및 인기 정책 매칭 통계 기록
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        admin_service.log_user_activity(
+            action="1분 맞춤진단 실행",
+            details=f"연령: {profile.get('age')}세, 지역: {profile.get('region')} {profile.get('district')}, 직업: {profile.get('jobStatus')}, 소득: {profile.get('income')} (매칭 {result.get('matched_count', 0)}건)",
+            user_name=f"{profile.get('region')} {profile.get('district')} 청년",
+            ip_address=client_ip
+        )
+        
+        for p in result.get("policies", []):
+            admin_service.track_policy_match(
+                policy_id=str(p.get("policy_id") or p.get("name")),
+                policy_name=p.get("name", "청년 정책"),
+                category=p.get("category", "청년지원")
+            )
+
         return JSONResponse(content={"status": "success", "data": result})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -289,6 +355,69 @@ async def api_health():
         "db_engine": db_engine,
         "policies_loaded": len(get_all_policies())
     })
+
+# 4. 관리자 시스템 및 정책 트래킹 API
+class PolicyClickRequest(BaseModel):
+    policy_id: str
+    policy_name: Optional[str] = ""
+    category: Optional[str] = ""
+    action_type: Optional[str] = "click" # 'click', 'apply', 'modal_open'
+
+@app.post("/api/stats/policy-click")
+async def api_track_policy_click(req: PolicyClickRequest, request: Request):
+    """정책 모달 열기 또는 공식 사이트 신청하기 클릭 통계 저장"""
+    try:
+        admin_service.track_policy_click(
+            policy_id=req.policy_id,
+            policy_name=req.policy_name,
+            category=req.category
+        )
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        action_desc = "공식 사이트 신청 이동" if req.action_type == "apply" else "정책 상세 모달 확인"
+        admin_service.log_user_activity(
+            action=action_desc,
+            details=f"정책: '{req.policy_name}' (ID: {req.policy_id}, 분류: {req.category})",
+            ip_address=client_ip
+        )
+        return JSONResponse(content={"status": "success"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "detail": str(e)})
+
+@app.get("/api/admin/overview")
+async def api_admin_overview():
+    """관리자 종합 지표 (진단수, 사용자수, API호출수, 인기정책 TOP10, 최근로그)"""
+    try:
+        data = admin_service.get_admin_dashboard_data()
+        return JSONResponse(content={"status": "success", "data": data})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/admin/logs/user")
+async def api_admin_user_logs(limit: int = Query(50, ge=1, le=500), filter: Optional[str] = None):
+    """사용자 활동 로그 조회"""
+    try:
+        logs = admin_service.get_user_activity_logs(limit=limit, action_filter=filter)
+        return JSONResponse(content={"status": "success", "data": logs})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/admin/logs/service")
+async def api_admin_service_logs(limit: int = Query(50, ge=1, le=500), status: Optional[str] = None):
+    """웹 서비스 작동 로그 조회"""
+    try:
+        logs = admin_service.get_service_operation_logs(limit=limit, status_filter=status)
+        return JSONResponse(content={"status": "success", "data": logs})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/admin/popular-policies")
+async def api_admin_popular_policies(limit: int = Query(30, ge=1, le=100)):
+    """많이 찾는 정책 데이터 및 랭킹 조회"""
+    try:
+        policies = admin_service.get_popular_policies(limit=limit)
+        return JSONResponse(content={"status": "success", "data": policies})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
