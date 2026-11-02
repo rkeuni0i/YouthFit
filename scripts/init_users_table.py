@@ -53,7 +53,8 @@ def setup_users_table():
 
     print("✓ 'users' table created/verified.")
 
-    # 기본 관리자(admin) 및 일반 테스트 사용자(user) 시딩
+    # [데모 전용] 기본 관리자(admin) 및 일반 테스트 사용자(user) 시딩
+    # 아래 비밀번호는 시연용입니다. 운영 환경에서는 절대 사용하지 말고 반드시 교체하세요.
     seed_accounts = [
         {
             "email": "admin@youthfit.kr",

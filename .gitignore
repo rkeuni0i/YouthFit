@@ -89,3 +89,6 @@ Thumbs.db
 *.log
 *.tmp
 *.bak
+
+# 임시 실험 스크립트
+scratch/
